@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gintone — 把拍照,還給眼睛。</title>
+<meta name="description" content="一顆鏡頭、一卷底片、三十六格。Gintone 把所有選擇移到快門之前,把注意力還給觀景窗。">
+<meta property="og:title" content="Gintone — 把拍照,還給眼睛。">
+<meta property="og:description" content="一顆鏡頭、一卷底片、三十六格。Gintone 把所有選擇移到快門之前,把注意力還給觀景窗。">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://gintone.app/">
+<meta property="og:image" content="https://gintone.app/uploads/app-icon.png">
+<link rel="icon" type="image/png" href="uploads/app-icon.png">
+<link rel="apple-touch-icon" href="uploads/app-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Libre+Franklin:wght@400;500;600;700&family=Noto+Serif+TC:wght@500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<style>
+html{scroll-behavior:auto}
+body{margin:0;background:#0b0a09;font-family:"Libre Franklin","Noto Serif TC",sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#f2efe9;text-decoration:none}
+a:hover{color:oklch(0.72 0.16 45)}
+::selection{background:oklch(0.72 0.16 45);color:#0b0a09}
+.dl-btn{margin-top:40px;display:inline-flex;align-items:center;gap:10px;padding:18px 38px;border-radius:999px;background:#f2efe9;color:#0b0a09;font:600 15px 'Libre Franklin',sans-serif}
+.dl-btn:hover{background:oklch(0.72 0.16 45);color:#0b0a09}
+</style>
+</head>
+<body>
+
+<div style="background:#0b0a09;color:#f2efe9;overflow:hidden">
+
+<div style="position:fixed;top:0;left:0;right:0;z-index:50;display:flex;justify-content:space-between;align-items:center;padding:18px clamp(20px,5vw,56px);background:linear-gradient(#0b0a09 30%,transparent)">
+  <div style="display:flex;align-items:center;gap:12px">
+    <img src="uploads/app-icon.png" alt="Gintone icon" style="width:30px;height:30px;border-radius:7px;display:block">
+    <span style="font:600 15px 'IBM Plex Mono',monospace;letter-spacing:.24em">GINTONE</span>
+  </div>
+  <a href="#dl" style="font:500 11px 'IBM Plex Mono',monospace;letter-spacing:.16em;padding:10px 18px;border:1px solid rgba(242,239,233,.25);border-radius:999px">下載</a>
+</div>
+
+<div style="position:fixed;left:0;top:0;height:2px;background:oklch(0.72 0.16 45);z-index:51;width:0" data-progress></div>
+
+<section style="min-height:100svh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:0 clamp(20px,6vw,64px);position:relative">
+  <div data-hero-kicker style="font:500 clamp(10px,1.2vw,12px) 'IBM Plex Mono',monospace;letter-spacing:.3em;color:oklch(0.72 0.16 45)">一顆鏡頭 · 一卷底片 · 三十六格</div>
+  <h1 style="margin:26px 0 0;font:700 clamp(40px,8.5vw,110px)/1.15 'Noto Serif TC',serif;letter-spacing:.04em">
+    <span data-hero-line style="display:block">把拍照,</span>
+    <span data-hero-line style="display:block">還給眼睛。</span>
+  </h1>
+  <div data-hero-sub style="margin-top:30px;font:400 clamp(14px,1.6vw,18px)/1.9 'Libre Franklin',sans-serif;color:rgba(242,239,233,.55);max-width:520px;text-wrap:pretty">Gintone 把所有選擇移到快門之前,把注意力還給觀景窗。</div>
+  <div data-hero-sub style="position:absolute;bottom:36px;left:50%;transform:translateX(-50%);font:500 10px 'IBM Plex Mono',monospace;letter-spacing:.24em;color:rgba(242,239,233,.35)">SCROLL ↓</div>
+</section>
+
+<section style="min-height:100svh;display:flex;align-items:center;padding:120px clamp(20px,6vw,64px)">
+  <div style="max-width:1100px;margin:0 auto;display:flex;flex-wrap:wrap;gap:clamp(32px,6vw,88px);align-items:center;justify-content:center">
+    <div style="flex:1 1 320px;max-width:520px">
+      <div data-fade style="font:500 11px 'IBM Plex Mono',monospace;letter-spacing:.24em;color:oklch(0.72 0.16 45)">01 · 鉤子</div>
+      <h2 data-fade style="margin:20px 0 0;font:600 clamp(26px,3.6vw,44px)/1.4 'Noto Serif TC',serif">妹妹說她想買一台 GR3。</h2>
+      <p data-fade style="margin:22px 0 0;font:400 clamp(14px,1.5vw,17px)/2 'Libre Franklin',sans-serif;color:rgba(242,239,233,.6);text-wrap:pretty">我的第一個反應很攝影師:畫質有多好?感光元件多大?對焦快嗎?細細看完規格表,每一項都不算頂尖。但這台相機有一種魔力——你拿起它,就會想出門拍照。</p>
+      <p data-fade style="margin:18px 0 0;font:600 clamp(16px,1.8vw,20px)/1.9 'Noto Serif TC',serif;color:#f2efe9">讓人想拍照的,從來不是規格。</p>
+    </div>
+    <div style="flex:0 1 340px;display:flex;flex-direction:column;gap:10px">
+      <div data-spec style="display:flex;justify-content:space-between;padding:16px 20px;border:1px solid rgba(242,239,233,.12);border-radius:8px;font:500 12px 'IBM Plex Mono',monospace;letter-spacing:.08em"><span style="color:rgba(242,239,233,.5)">畫質</span><span style="color:rgba(242,239,233,.35);text-decoration:line-through">不算頂尖</span></div>
+      <div data-spec style="display:flex;justify-content:space-between;padding:16px 20px;border:1px solid rgba(242,239,233,.12);border-radius:8px;font:500 12px 'IBM Plex Mono',monospace;letter-spacing:.08em"><span style="color:rgba(242,239,233,.5)">對焦</span><span style="color:rgba(242,239,233,.35);text-decoration:line-through">不算頂尖</span></div>
+      <div data-spec style="display:flex;justify-content:space-between;padding:16px 20px;border:1px solid rgba(242,239,233,.12);border-radius:8px;font:500 12px 'IBM Plex Mono',monospace;letter-spacing:.08em"><span style="color:rgba(242,239,233,.5)">電池</span><span style="color:rgba(242,239,233,.35);text-decoration:line-through">不算頂尖</span></div>
+      <div data-spec style="display:flex;justify-content:space-between;padding:16px 20px;border:1px solid oklch(0.72 0.16 45 / .6);border-radius:8px;font:500 12px 'IBM Plex Mono',monospace;letter-spacing:.08em;background:oklch(0.72 0.16 45 / .07)"><span style="color:#f2efe9">魔力</span><span style="color:oklch(0.72 0.16 45)">想帶出門</span></div>
+    </div>
+  </div>
+</section>
+
+<section style="min-height:90svh;display:flex;flex-direction:column;justify-content:center;padding:120px 0;position:relative">
+  <div style="padding:0 clamp(20px,6vw,64px);max-width:1100px;margin:0 auto;width:100%;box-sizing:border-box">
+    <div data-fade style="font:500 11px 'IBM Plex Mono',monospace;letter-spacing:.24em;color:oklch(0.72 0.16 45)">02 · 問題</div>
+    <h2 data-fade style="margin:20px 0 0;font:600 clamp(26px,3.6vw,44px)/1.4 'Noto Serif TC',serif">完美,不等於有感覺。</h2>
+    <p data-fade style="margin:22px 0 0;font:400 clamp(14px,1.5vw,17px)/2 'Libre Franklin',sans-serif;color:rgba(242,239,233,.6);max-width:560px;text-wrap:pretty">iPhone 默默替你做了很多——疊圖、HDR、運算景深。它每多做一分,你就多得到一張「看似完美」的照片:曝光正確、細節完整、無可挑剔,也無話可說。</p>
+  </div>
+  <div data-strip style="display:flex;gap:14px;margin-top:64px;will-change:transform"></div>
+</section>
+
+<section data-manifesto style="min-height:100svh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:120px clamp(20px,6vw,64px)">
+  <div data-fade style="font:500 11px 'IBM Plex Mono',monospace;letter-spacing:.24em;color:oklch(0.72 0.16 45)">03 · 領悟</div>
+  <div style="margin-top:44px;max-width:900px">
+    <h2 data-manifesto-text style="margin:0;font:700 clamp(30px,5.4vw,68px)/1.5 'Noto Serif TC',serif;letter-spacing:.02em"></h2>
+  </div>
+  <div style="display:flex;flex-wrap:wrap;gap:clamp(14px,3vw,28px);margin-top:72px;justify-content:center">
+    <div data-limit style="display:flex;flex-direction:column;align-items:center;gap:12px;padding:26px clamp(20px,3vw,40px);border:1px solid rgba(242,239,233,.14);border-radius:12px;min-width:150px">
+      <span style="font:600 clamp(24px,3vw,34px) 'IBM Plex Mono',monospace;color:#f2efe9">1</span>
+      <span style="font:500 12px 'IBM Plex Mono',monospace;letter-spacing:.18em;color:rgba(242,239,233,.55)">顆鏡頭</span>
+    </div>
+    <div data-limit style="display:flex;flex-direction:column;align-items:center;gap:12px;padding:26px clamp(20px,3vw,40px);border:1px solid rgba(242,239,233,.14);border-radius:12px;min-width:150px">
+      <span style="font:600 clamp(24px,3vw,34px) 'IBM Plex Mono',monospace;color:#f2efe9">1</span>
+      <span style="font:500 12px 'IBM Plex Mono',monospace;letter-spacing:.18em;color:rgba(242,239,233,.55)">卷底片</span>
+    </div>
+    <div data-limit style="display:flex;flex-direction:column;align-items:center;gap:12px;padding:26px clamp(20px,3vw,40px);border:1px solid oklch(0.72 0.16 45 / .6);border-radius:12px;min-width:150px;background:oklch(0.72 0.16 45 / .07)">
+      <span style="font:600 clamp(24px,3vw,34px) 'IBM Plex Mono',monospace;color:oklch(0.72 0.16 45)">36</span>
+      <span style="font:500 12px 'IBM Plex Mono',monospace;letter-spacing:.18em;color:rgba(242,239,233,.55)">格,拍了就算</span>
+    </div>
+  </div>
+</section>
+
+<section style="min-height:80svh;display:flex;align-items:center;justify-content:center;padding:120px clamp(20px,6vw,64px);background:#100e0c">
+  <div style="max-width:620px;text-align:center">
+    <div data-fade style="font:500 11px 'IBM Plex Mono',monospace;letter-spacing:.24em;color:rgba(242,239,233,.4)">04 · 平靜</div>
+    <div data-fade style="margin:34px auto 0;width:clamp(220px,32vw,340px);position:relative">
+      <img src="uploads/IMG_1306.jpeg" style="width:100%;display:block" alt="">
+      <span style="position:absolute;right:10px;bottom:8px;font:500 9px 'IBM Plex Mono',monospace;letter-spacing:.12em;color:rgba(242,239,233,.7)">22/36 · GT400</span>
+    </div>
+    <p data-fade style="margin:34px 0 0;font:500 clamp(18px,2.4vw,26px)/2.1 'Noto Serif TC',serif;color:rgba(242,239,233,.85);text-wrap:pretty">老實說,這個 app 有一部分是做給我自己的。選擇越多,腦袋就越吵。當一卷底片替我把大部分的決定都先做完,取景的時候,世界會突然安靜下來。</p>
+    <p data-fade style="margin:28px 0 0;font:400 clamp(13px,1.4vw,16px)/2 'Libre Franklin',sans-serif;color:rgba(242,239,233,.45)">要思考的變少了,焦慮也跟著變少。我漸漸地,在攝影裡找到平靜。</p>
+  </div>
+</section>
+
+<section style="min-height:100svh;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:120px clamp(20px,6vw,64px);text-align:center">
+  <div data-fade style="font:500 11px 'IBM Plex Mono',monospace;letter-spacing:.24em;color:oklch(0.72 0.16 45)">05 · 作品</div>
+  <div data-ring style="position:relative;width:clamp(220px,30vw,320px);height:clamp(220px,30vw,320px);margin-top:56px">
+    <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px">
+      <span data-counter style="font:600 clamp(48px,7vw,84px) 'IBM Plex Mono',monospace;letter-spacing:-.03em">36</span>
+      <span style="font:500 10px 'IBM Plex Mono',monospace;letter-spacing:.24em;color:rgba(242,239,233,.4)">FRAMES</span>
+    </div>
+  </div>
+  <div data-strip2 style="display:flex;gap:10px;margin-top:64px;will-change:transform;align-self:flex-start"></div>
+  <h2 data-fade style="margin:56px 0 0;font:600 clamp(26px,3.6vw,44px)/1.5 'Noto Serif TC',serif;max-width:760px">拍滿一卷,照片跟著音樂的小節呼吸,<br>剪成一支值得分享的影片。</h2>
+  <p data-fade style="margin:20px 0 0;font:400 clamp(14px,1.5vw,17px)/2 'Libre Franklin',sans-serif;color:rgba(242,239,233,.55)">分享的單位是卷,不是張。</p>
+</section>
+
+<section style="min-height:80svh;display:flex;align-items:center;padding:120px clamp(20px,6vw,64px);background:#100e0c">
+  <div style="max-width:1100px;margin:0 auto;display:flex;flex-wrap:wrap;gap:clamp(32px,6vw,88px);align-items:center;justify-content:center">
+    <div data-gin style="flex:0 1 300px;display:flex;flex-direction:column;align-items:center;gap:0;font:700 clamp(48px,6vw,76px)/1.1 'Noto Serif TC',serif">
+      <span>Gin</span>
+      <span style="color:oklch(0.72 0.16 45)">+ tone</span>
+    </div>
+    <div style="flex:1 1 320px;max-width:520px">
+      <div data-fade style="font:500 11px 'IBM Plex Mono',monospace;letter-spacing:.24em;color:oklch(0.72 0.16 45)">06 · 命名</div>
+      <p data-fade style="margin:22px 0 0;font:400 clamp(14px,1.5vw,17px)/2 'Libre Franklin',sans-serif;color:rgba(242,239,233,.6);text-wrap:pretty">我叫大軍,「軍」的音很像 Gin;Gin Tonic 是我最喜歡的調酒——成分極度簡單,卻極度講究。就因為簡單,一杯 Gin Tonic 可以讓你看見一家酒吧的基本功。</p>
+      <p data-fade style="margin:18px 0 0;font:600 clamp(16px,1.8vw,20px)/1.9 'Noto Serif TC',serif">配方很簡單,但每個細節都有講究。<br>它是大軍的 tone 調,所以叫 Gintone。</p>
+    </div>
+  </div>
+</section>
+
+<section id="dl" style="min-height:90svh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:120px clamp(20px,6vw,64px) 80px">
+  <img data-fade src="uploads/app-icon.png" alt="Gintone icon" style="width:clamp(80px,10vw,110px);height:clamp(80px,10vw,110px);border-radius:24px;display:block">
+  <h2 data-fade style="margin:36px 0 0;font:700 clamp(30px,4.6vw,58px)/1.4 'Noto Serif TC',serif">用手上的 iPhone,<br>重新體驗一次拍照本來的樂趣。</h2>
+  <a data-fade href="#" class="dl-btn">於 App Store 下載</a>
+  <div style="margin-top:100px;display:flex;flex-wrap:wrap;gap:18px;justify-content:center;font:500 10px 'IBM Plex Mono',monospace;letter-spacing:.18em;color:rgba(242,239,233,.35)">
+    <span>© 2026 GINTONE</span><span>·</span><span>LESS TO CHOOSE. MORE TO SEE.</span>
+  </div>
+</section>
+
+</div>
+
+<script>
+(function () {
+  // ---- 動態內容(對應原設計的 sc-for 迴圈) ----
+  var U = 'uploads/';
+  var photos = ['1256','1257','1258','1259','1260','1261','1262','1267','1268','1269','1310','1311','1315','1316','1317'].map(function (id) { return U + 'IMG_' + id + '.jpeg'; });
+
+  // 02 · 灰階照片帶
+  var stripA = document.querySelector('[data-strip]');
+  photos.slice(0, 8).forEach(function (src) {
+    var cell = document.createElement('div');
+    cell.style.cssText = 'flex:none;width:clamp(180px,24vw,300px);aspect-ratio:4/3;position:relative;overflow:hidden';
+    cell.innerHTML = '<div style="position:absolute;inset:0;background-image:url(\'' + src + '\');background-size:cover;background-position:center;filter:saturate(0) brightness(.8) contrast(.9)"></div><span style="position:absolute;left:12px;bottom:10px;font:500 9px \'IBM Plex Mono\',monospace;letter-spacing:.14em;color:rgba(242,239,233,.65)">PERFECT</span>';
+    stripA.appendChild(cell);
+  });
+
+  // 05 · 彩色照片帶
+  var stripB = document.querySelector('[data-strip2]');
+  photos.slice(3).forEach(function (src, i) {
+    var n = String(i + 14).padStart(2, '0');
+    var cell = document.createElement('div');
+    cell.style.cssText = 'flex:none;width:clamp(150px,18vw,240px);aspect-ratio:4/3;position:relative;overflow:hidden';
+    cell.innerHTML = '<div style="position:absolute;inset:0;background-image:url(\'' + src + '\');background-size:cover;background-position:center"></div><span style="position:absolute;left:10px;bottom:8px;font:500 8.5px \'IBM Plex Mono\',monospace;letter-spacing:.12em;color:rgba(242,239,233,.75);white-space:nowrap">' + n + '/36 · GT400</span>';
+    stripB.appendChild(cell);
+  });
+
+  // 03 · 逐字宣言
+  var mani = document.querySelector('[data-manifesto-text]');
+  '當你只剩構圖可以想,你才真正開始看。'.split('').forEach(function (ch) {
+    var s = document.createElement('span');
+    s.setAttribute('data-word', '');
+    s.style.cssText = 'display:inline-block;opacity:.12';
+    s.textContent = ch;
+    mani.appendChild(s);
+  });
+
+  // 05 · 36 格圓環
+  var ring = document.querySelector('[data-ring]');
+  for (var i = 0; i < 36; i++) {
+    var a = (i / 36) * Math.PI * 2 - Math.PI / 2;
+    var d = document.createElement('div');
+    d.setAttribute('data-ringdot', '');
+    d.style.cssText = 'position:absolute;left:' + (48.8 + 47 * Math.cos(a)).toFixed(2) + '%;top:' + (48.8 + 47 * Math.sin(a)).toFixed(2) + '%;width:2.4%;height:2.4%;border-radius:50%;background:rgba(242,239,233,.15)';
+    ring.insertBefore(d, ring.firstChild);
+  }
+
+  // ---- GSAP 捲動動畫 ----
+  function setup() {
+    gsap.registerPlugin(ScrollTrigger);
+
+    gsap.to('[data-progress]', { width: '100%', ease: 'none', scrollTrigger: { start: 0, end: 'max', scrub: 0.3 } });
+
+    gsap.from('[data-hero-kicker]', { y: 20, opacity: 0, duration: 0.8, ease: 'power3.out' });
+    gsap.from('[data-hero-line]', { y: 80, opacity: 0, duration: 1.1, stagger: 0.15, ease: 'power4.out', delay: 0.2 });
+    gsap.from('[data-hero-sub]', { opacity: 0, duration: 1, delay: 0.9 });
+
+    gsap.utils.toArray('[data-fade]').forEach(function (el) {
+      gsap.from(el, { y: 36, opacity: 0, duration: 0.9, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 85%' } });
+    });
+
+    gsap.utils.toArray('[data-spec]').forEach(function (el, i) {
+      gsap.from(el, { x: 60, opacity: 0, duration: 0.7, delay: i * 0.08, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 88%' } });
+    });
+
+    document.querySelectorAll('[data-strip],[data-strip2]').forEach(function (strip) {
+      gsap.fromTo(strip, { x: 0 }, { x: function () { return -(strip.scrollWidth - window.innerWidth) * 0.6; }, ease: 'none', scrollTrigger: { trigger: strip, start: 'top bottom', end: 'bottom top', scrub: 0.5 } });
+    });
+
+    var maniSection = document.querySelector('[data-manifesto]');
+    if (maniSection) gsap.to(maniSection.querySelectorAll('[data-word]'), { opacity: 1, stagger: 0.06, ease: 'none', scrollTrigger: { trigger: maniSection, start: 'top 60%', end: 'top 10%', scrub: 0.4 } });
+
+    gsap.utils.toArray('[data-limit]').forEach(function (el, i) {
+      gsap.from(el, { y: 44, opacity: 0, scale: 0.94, duration: 0.7, delay: i * 0.12, ease: 'back.out(1.4)', scrollTrigger: { trigger: el, start: 'top 90%' } });
+    });
+
+    var dots = gsap.utils.toArray('[data-ringdot]');
+    var counter = document.querySelector('[data-counter]');
+    if (dots.length && counter) {
+      var st = { trigger: counter, start: 'top 80%', end: 'top 30%', scrub: 0.4 };
+      gsap.to(dots, { backgroundColor: 'oklch(0.72 0.16 45)', stagger: 0.03, ease: 'none', scrollTrigger: st });
+      var obj = { n: 36 };
+      gsap.to(obj, { n: 0, ease: 'none', snap: { n: 1 }, scrollTrigger: { trigger: counter, start: 'top 80%', end: 'top 30%', scrub: 0.4 }, onUpdate: function () { counter.textContent = String(obj.n).padStart(2, '0'); } });
+    }
+
+    var gin = document.querySelector('[data-gin]');
+    if (gin) gsap.from(gin.children, { y: 50, opacity: 0, duration: 0.9, stagger: 0.18, ease: 'power4.out', scrollTrigger: { trigger: gin, start: 'top 82%' } });
+  }
+
+  if (window.gsap && window.ScrollTrigger) setup();
+  else window.addEventListener('load', setup);
+})();
+</script>
+</body>
+</html>
