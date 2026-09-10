@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>為什麼我要做一台相機 — Gintone 設計理念</title>
+<meta name="description" content="Gintone 設計理念分享：從第一台 Cyber-shot 到自己做一台相機 app。">
+<meta property="og:title" content="為什麼我要做一台相機 — Gintone 設計理念">
+<meta property="og:description" content="Ryan Liou 的簡報：運算攝影、Apple Log、定焦鏡與 36 張一卷的世界觀。">
+<meta property="og:image" content="https://gintone.app/slides/assets/frame-jbl.webp">
+<meta property="og:url" content="https://gintone.app/slides/">
+<link rel="icon" type="image/png" href="../uploads/app-icon.png">
+
+<!-- ===========================================
+     FONTS (Google Fonts)
+     顯示字：Noto Serif TC（中文）＋ Instrument Serif（英文斜體 kicker）
+     HUD 字：JetBrains Mono（模仿 Gintone 相框的等寬資訊列）
+     =========================================== -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&family=Noto+Serif+TC:wght@500;700&display=swap" rel="stylesheet">
+
+<style>
+/* ===========================================
+   THEME TOKENS — 改這裡就能換整份簡報的顏色／字體
+   =========================================== */
+:root{
+  --stage-bg:#050505;          /* 瀏覽器留黑邊的顏色 */
+  --slide-bg:#0b0b0b;          /* 投影片底色 */
+  --ink:#ece7dd;               /* 主要文字（暖白） */
+  --ink-muted:#a9a397;         /* 次要文字 */
+  --hud:#8d887e;               /* 等寬資訊列 */
+  --accent:#e0432f;            /* 張數計數器的紅 */
+  --panel:#111111;             /* 相框底 */
+  --line:#262626;              /* 相框邊線 */
+  --paper:#f1ece2;             /* 產品規格卡的紙色 */
+  --paper-ink:#1b1a18;
+
+  --font-display:'Noto Serif TC',serif;
+  --font-latin:'Instrument Serif',serif;
+  --font-mono:'JetBrains Mono',monospace;
+
+  --ease:cubic-bezier(.16,1,.3,1);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+
+/* ===========================================
+   FIXED 16:9 STAGE: MANDATORY BASE STYLES
+   Include this ENTIRE file in every presentation.
+   Slides are authored at 1920×1080 and scaled as a whole.
+   =========================================== */
+
+/* 1. Lock the browser viewport */
+html,
+body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    background: var(--stage-bg, #000);
+}
+
+/* 2. Full-window deck viewport */
+.deck-viewport {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    background: var(--stage-bg, #000);
+}
+
+/* 3. Fixed 16:9 design canvas.
+   JavaScript sets transform: translate(...) scale(...). */
+.deck-stage {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    transform-origin: 0 0;
+    background: var(--slide-bg, #fff);
+}
+
+/* 4. Slides stack inside the fixed stage.
+   Content must be laid out at 1920×1080, not reflowed per device. */
+.slide {
+    position: absolute;
+    inset: 0;
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    display: block;
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    background: var(--slide-bg, #fff);
+}
+
+.slide.active,
+.slide.visible {
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+    z-index: 1;
+}
+
+/* 5. Keep media inside authored slide bounds */
+img,
+video,
+canvas,
+svg {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+/* 6. Presentation chrome stays outside the slide design system */
+.deck-controls {
+    position: fixed;
+    left: 50%;
+    bottom: 22px;
+    transform: translateX(-50%);
+    z-index: 1000;
+}
+
+/* 7. Print one fixed-size slide per page */
+@media print {
+    html,
+    body {
+        width: 1920px;
+        height: auto;
+        overflow: visible;
+        background: #fff;
+    }
+
+    .deck-viewport {
+        position: static;
+        overflow: visible;
+        background: #fff;
+    }
+
+    .deck-stage {
+        position: static;
+        width: auto;
+        height: auto;
+        transform: none !important;
+        background: none;
+    }
+
+    .slide {
+        position: relative;
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        width: 1920px;
+        height: 1080px;
+        break-after: page;
+        page-break-after: always;
+    }
+
+    .slide:last-child {
+        break-after: auto;
+        page-break-after: auto;
+    }
+
+    .deck-controls {
+        display: none !important;
+    }
+}
+
+/* 8. Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.2s !important;
+    }
+}
+/* ===== end viewport-base.css ===== */
+
+
+/* ===========================================
+   SLIDE SURFACE — 底色、暗角、換頁淡入淡出
+   =========================================== */
+.slide{
+  color:var(--ink);
+  font-family:var(--font-display);
+  transition:opacity .5s ease, visibility 0s linear .5s;
+}
+.slide.active{transition:opacity .5s ease, visibility 0s}
+.slide::before{               /* 暗房裡一盞燈的柔光 */
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse at 30% 40%,rgba(255,255,255,.06),transparent 55%);
+}
+
+/* ===========================================
+   FILM STRIP — 左右兩條底片齒孔（JS 注入到每一頁）
+   =========================================== */
+.strip{position:absolute;top:0;bottom:0;width:70px;background:#050505;border-left:1px solid #1c1c1c;border-right:1px solid #1c1c1c;z-index:2}
+.strip.l{left:0}.strip.rr{right:0}
+.strip i{position:absolute;left:19px;width:32px;height:22px;background:var(--slide-bg);border-radius:3px;border:1px solid #222}
+
+/* ===========================================
+   HUD — 四角的等寬資訊列（JS 注入：GINTONE／章節／作者／張數）
+   =========================================== */
+.hud{position:absolute;font-family:var(--font-mono);font-size:20px;letter-spacing:.18em;color:var(--hud);text-transform:uppercase;z-index:2;white-space:nowrap}
+.hud.h1{left:150px;top:88px}.hud.h2{right:150px;top:88px}.hud.h3{left:150px;bottom:88px}.hud.h4{right:150px;bottom:88px}
+.hud b{color:var(--accent);font-weight:500}
+
+/* ===========================================
+   CONTENT BOX — 每頁可用區域 1620×780（HUD 之內）
+   =========================================== */
+.content{position:absolute;left:150px;top:150px;width:1620px;height:780px}
+
+/* ===========================================
+   TYPOGRAPHY
+   =========================================== */
+.kicker{font-family:var(--font-latin);font-style:italic;font-size:46px;color:var(--accent);letter-spacing:.01em;line-height:1.2}
+.kicker.zh{font-family:var(--font-display);font-style:normal;font-weight:500;font-size:34px;letter-spacing:.06em}
+h1{font-weight:700;font-size:140px;line-height:1.15;letter-spacing:.02em}
+h2{font-weight:700;font-size:104px;line-height:1.28;letter-spacing:.02em;margin-top:18px}
+h2 em,h1 em,p em{font-style:normal;color:var(--accent)}
+h2 small{font-size:.6em;color:var(--ink-muted);font-weight:500}
+p.lead{margin-top:40px;font-size:34px;line-height:1.75;color:var(--ink-muted);font-weight:500;max-width:1200px}
+p.lead b{color:var(--ink);font-weight:700}
+p.note{margin-top:28px;font-family:var(--font-mono);font-size:20px;letter-spacing:.12em;color:var(--hud)}
+
+/* ===========================================
+   REVEAL ANIMATION — .r 元素依 DOM 順序交錯淡入（JS 設定 --i）
+   =========================================== */
+.r{opacity:0;transform:translateY(26px);
+   transition:opacity .9s var(--ease) calc(var(--i,0)*.12s + .15s),
+              transform .9s var(--ease) calc(var(--i,0)*.12s + .15s)}
+.slide.visible .r{opacity:1;transform:none}
+
+/* ===========================================
+   FRAME — 模仿 Gintone 相框的照片元件（JS 依長寬比配置尺寸）
+   =========================================== */
+.frame{position:relative;background:var(--panel);border:1px solid var(--line);padding:22px 22px 66px;flex:none}
+.frame img{width:100%;height:100%;object-fit:cover;display:block;max-height:none}
+.frame figcaption{position:absolute;left:22px;right:22px;bottom:22px;display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:17px;letter-spacing:.16em;color:var(--hud);text-transform:uppercase}
+.frame figcaption b{color:var(--accent);font-weight:500}
+.frame.bare{padding:0;border:none;background:none}
+.frame.hero{position:absolute;right:150px;top:250px;width:640px}
+.frame.hero img{aspect-ratio:4/3;height:auto}
+.frame.hero.bare{width:380px;top:230px}
+.frame.hero.bare img{aspect-ratio:1080/1681}
+
+/* ===========================================
+   PAPER — 產品規格卡（相機、鏡頭）
+   =========================================== */
+.paper{background:var(--paper);color:var(--paper-ink);padding:44px 44px 36px;width:560px;text-align:center;
+       box-shadow:0 30px 60px rgba(0,0,0,.5)}
+.paper img{max-height:480px;width:auto;object-fit:contain;display:inline-block}
+.paper .spec{margin-top:28px;border-top:1px solid rgba(0,0,0,.15);padding-top:18px;display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:16px;letter-spacing:.14em;color:#5a5750;text-transform:uppercase}
+
+/* ===========================================
+   LAYOUTS
+   =========================================== */
+/* 標題頁 */
+.l-title .tick{position:absolute;left:150px;top:214px;width:1000px;height:1px;background:linear-gradient(90deg,#3a3a3a,transparent)}
+.l-title .wrap{position:absolute;left:150px;top:250px;width:960px}
+.l-title.end h1{font-size:116px}
+.l-title.end .wrap{width:1180px}
+.l-title.end h1{font-size:104px}
+.l-title.end .sub{margin-top:28px}
+.l-title .sub{margin-top:52px;font-size:32px;line-height:1.7;color:var(--ink-muted);font-weight:500;max-width:860px}
+
+/* 宣言頁：垂直置中的一句話 */
+.l-state .content{display:flex;flex-direction:column;justify-content:center}
+
+/* 左文右圖 */
+.l-split .content{display:flex;align-items:center;gap:80px}
+.l-split .text{flex:0 0 720px}
+.l-split .text h2{font-size:88px}
+.l-split .media{flex:1;height:780px;display:flex;align-items:center;justify-content:center;gap:30px}
+.l-split.wide .text{flex:0 0 620px}
+
+/* 上標題、下一排相框 */
+.l-strip .content{display:flex;flex-direction:column}
+.l-strip .head{flex:none;padding-bottom:36px}
+.l-strip .head h2{font-size:72px;line-height:1.3;margin-top:10px}
+.l-strip .row{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;gap:30px}
+
+.l-strip.cmp .row{flex:none;height:520px}
+.cmp-note{display:flex;gap:30px;justify-content:center;margin-top:22px;font-size:22px;line-height:1.6;color:var(--ink-muted);font-weight:500}
+.cmp-note span{flex:none;width:368px}
+
+/* 滿版照片 */
+.l-full img.bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.5;max-height:none}
+.l-full .shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,11,11,.2) 0%,rgba(11,11,11,.35) 45%,rgba(11,11,11,.95) 100%)}
+.l-full .content{display:flex;flex-direction:column;justify-content:flex-end}
+
+/* ===========================================
+   SMALL COMPONENTS
+   =========================================== */
+.chips{display:flex;flex-wrap:wrap;gap:16px;margin-top:44px}
+.chip{font-family:var(--font-mono);font-size:24px;letter-spacing:.14em;border:1px solid #3a3a3a;padding:14px 26px;color:var(--ink)}
+
+.price{margin-top:44px;display:flex;align-items:baseline;gap:36px;font-family:var(--font-mono);letter-spacing:.06em}
+.price .was{font-size:34px;color:var(--hud);text-decoration:line-through}
+.price .arrow{font-size:30px;color:var(--hud)}
+.price .now{font-size:60px;color:var(--accent);font-weight:500}
+
+.bignum{font-family:var(--font-mono);font-size:230px;line-height:1;font-weight:500;color:var(--ink);letter-spacing:-.02em;margin-top:24px}
+.bignum small{font-size:80px;color:var(--hud);margin-left:12px}
+
+.qs{margin-top:44px;list-style:none;display:flex;flex-direction:column;gap:26px}
+.qs li{display:flex;gap:32px;align-items:baseline;font-size:40px;line-height:1.5;color:var(--ink-muted);font-weight:500}
+.qs li b{font-family:var(--font-mono);font-size:22px;letter-spacing:.16em;color:var(--accent);font-weight:500;flex:none}
+.qs li strong{color:var(--ink);font-weight:700}
+
+.cols{display:flex;gap:60px;margin-top:56px;align-items:stretch}
+.cols>div{flex:1}
+.cols .vs{flex:none;width:1px;background:var(--line)}
+.cols .lab{font-family:var(--font-mono);font-size:20px;letter-spacing:.18em;color:var(--hud);text-transform:uppercase;margin-bottom:22px}
+.cols ul{list-style:none;display:flex;flex-direction:column;gap:16px;font-size:36px;color:var(--ink-muted);font-weight:500}
+.cols ul li::before{content:"×";font-family:var(--font-mono);color:var(--hud);margin-right:18px}
+.cols blockquote{font-size:44px;line-height:1.6;color:var(--ink);font-weight:700}
+
+.steps{display:flex;gap:30px;margin-top:56px}
+.step{flex:1;background:var(--panel);border:1px solid var(--line);padding:40px 40px 44px}
+.step .n{font-family:var(--font-mono);font-size:22px;letter-spacing:.18em;color:var(--accent)}
+.step h3{font-size:44px;font-weight:700;margin-top:18px;line-height:1.3}
+.step p{margin-top:18px;font-size:27px;line-height:1.65;color:var(--ink-muted);font-weight:500}
+
+.focals{display:flex;gap:30px;margin-top:60px}
+.focal{flex:1;background:var(--panel);border:1px solid var(--line);padding:44px 0 36px;text-align:center}
+.focal .num{font-family:var(--font-mono);font-size:112px;line-height:1;font-weight:500;color:var(--ink);letter-spacing:-.03em}
+.focal .num small{font-size:30px;color:var(--hud);margin-left:6px;letter-spacing:0}
+.focal .lab{margin-top:22px;font-size:26px;color:var(--ink-muted);font-weight:500}
+.focal.dim .num{color:var(--ink-muted)}
+
+/* 配樂示意：底片小圖＋波形＋小節線 */
+.music{width:820px;background:var(--panel);border:1px solid var(--line);padding:36px}
+.music .thumbs{display:flex;gap:10px}
+.music .thumbs img{flex:1 1 0;min-width:0;width:0;height:96px;object-fit:cover;filter:grayscale(.2);border:1px solid var(--line)}
+.music .wave{display:flex;align-items:flex-end;gap:5px;height:180px;margin-top:28px;position:relative}
+.music .wave i{flex:1;background:#4a463f;display:block}
+.music .wave i.beat{background:var(--accent)}
+.music .bars{display:flex;justify-content:space-between;margin-top:14px;font-family:var(--font-mono);font-size:15px;letter-spacing:.16em;color:var(--hud)}
+
+
+/* ===========================================
+   PHONE — App 截圖／影片的手機外框
+   =========================================== */
+.phone{width:340px;height:740px;border-radius:44px;overflow:hidden;background:#000;border:1px solid #333;box-shadow:0 30px 60px rgba(0,0,0,.55);flex:none}
+.phone img,.phone video{width:100%;height:100%;object-fit:cover;display:block;max-height:none}
+.phone.video{cursor:pointer;width:416px;border-radius:36px}
+.music.narrow{width:450px}
+.music.narrow .thumbs img{height:64px}
+.music.narrow .wave{gap:3px;height:150px}
+.music .bpm{margin-top:18px;font-family:var(--font-mono);font-size:15px;letter-spacing:.16em;color:var(--accent);text-transform:uppercase}
+
+/* ===========================================
+   NAME STORY — Gin Tonic 配方卡、命名等式、結尾 QR
+   =========================================== */
+.recipe{width:560px;background:var(--paper);color:var(--paper-ink);padding:48px 52px 40px;box-shadow:0 30px 60px rgba(0,0,0,.5)}
+.recipe .rt{font-family:var(--font-latin);font-style:italic;font-size:64px;line-height:1;color:var(--accent);border-bottom:1px solid rgba(0,0,0,.18);padding-bottom:24px}
+.recipe ul{list-style:none;margin-top:24px}
+.recipe li{display:flex;align-items:baseline;gap:22px;padding:22px 0;border-bottom:1px dashed rgba(0,0,0,.18)}
+.recipe li b{font-family:var(--font-mono);font-size:18px;letter-spacing:.16em;color:var(--accent);font-weight:500}
+.recipe li span{font-size:38px;font-weight:700}
+.recipe li i{margin-left:auto;font-family:var(--font-latin);font-style:italic;font-size:30px;color:#6a665d}
+.recipe .rf{display:flex;gap:14px;margin-top:28px;font-family:var(--font-mono);font-size:15px;letter-spacing:.2em;color:#6a665d;text-transform:uppercase}
+.eq{margin-top:40px;display:flex;flex-direction:column;gap:6px}
+.eq .row1{display:flex;align-items:baseline;gap:40px}
+.eq .zh{font-size:96px;font-weight:700;width:520px}
+.eq .op{font-family:var(--font-mono);font-size:64px;color:var(--hud)}
+.eq .en{font-family:var(--font-mono);font-size:112px;font-weight:500;letter-spacing:.04em;color:var(--ink-muted)}
+.eq .sum{border-top:1px solid var(--line);padding-top:18px;margin-top:14px}
+.eq .sum .en{color:var(--ink)}
+.eq .sum em{font-style:normal;color:var(--accent)}
+.qr{display:flex;align-items:center;gap:32px;margin-top:40px;text-decoration:none;color:var(--ink-muted)}
+.qr img{width:200px;height:200px;background:var(--paper);padding:0;display:block;box-shadow:0 20px 40px rgba(0,0,0,.5)}
+.qr span{font-family:var(--font-mono);font-size:20px;letter-spacing:.18em;line-height:1.9}
+.qr span b{display:block;font-size:34px;color:var(--ink);font-weight:500;letter-spacing:.08em}
+
+/* ===========================================
+   INLINE EDITING CHROME（簡報之外的 UI）
+   =========================================== */
+.edit-hotzone{position:fixed;top:0;left:0;width:80px;height:80px;z-index:10000;cursor:pointer}
+.edit-toggle{position:fixed;top:16px;left:16px;z-index:10001;width:44px;height:44px;border-radius:50%;border:1px solid #444;background:#111;color:#eee;font-size:20px;cursor:pointer;opacity:0;pointer-events:none;transition:opacity .3s ease}
+.edit-toggle.show,.edit-toggle.active{opacity:1;pointer-events:auto}
+.edit-toggle.active{background:var(--accent);border-color:var(--accent)}
+body.editing [contenteditable="true"]{outline:1px dashed rgba(224,67,47,.7);outline-offset:4px;cursor:text}
+.edit-hint{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:10001;font-family:var(--font-mono);font-size:12px;letter-spacing:.12em;color:#999;background:#111;border:1px solid #333;padding:8px 14px;border-radius:999px;opacity:0;transition:opacity .3s;pointer-events:none}
+body.editing .edit-hint{opacity:1}
+</style>
+</head>
+<body>
+
+<div class="deck-viewport">
+<main class="deck-stage" id="deckStage">
+
+<!-- ===== 01 標題 ===== -->
+<section class="slide l-title" data-section="Design Notes" data-mm="48">
+  <div class="tick"></div>
+  <div class="wrap">
+    <div class="kicker r">Why I built a camera</div>
+    <h1 class="r">為什麼我要做<br>一台相機</h1>
+    <p class="sub r">重要的不是參數有多厲害，<br>而是你願不願意把它拿起來拍照。</p>
+  </div>
+  <figure class="frame hero r"><img src="assets/g-bw-1.webp" alt="黑白街拍"><figcaption><span>SoftBlackAndWhite</span><span>48mm</span><b>4/36</b></figcaption></figure>
+</section>
+
+<!-- ===== 02 第一台相機 ===== -->
+<section class="slide l-split" data-section="01 · 起點" data-mm="24">
+  <div class="content">
+    <div class="text">
+      <div class="kicker zh r">16 歲那一年</div>
+      <h2 class="r">人生第一台<br>數位相機</h2>
+      <p class="lead r">Sony Cyber-shot T2。<br>當年很風行的「即開即拍」，<br>從此開始亂拍。</p>
+    </div>
+    <div class="media">
+      <div class="paper r"><img src="assets/cybershot-t2.webp" alt="Sony Cyber-shot T2"><div class="spec"><span>Sony Cyber-shot T2</span><span>Carl Zeiss · 8.1MP</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 03 Canon 550D ===== -->
+<section class="slide l-split" data-section="01 · 起點" data-mm="24">
+  <div class="content">
+    <div class="text">
+      <div class="kicker zh r">陸陸續續買了 Canon 550D</div>
+      <h2 class="r">開始了<br>攝影之路</h2>
+      <p class="lead r">開始學技術的東西：</p>
+      <div class="chips r"><span class="chip">光圈</span><span class="chip">快門</span><span class="chip">ISO</span><span class="chip">打光</span><span class="chip">構圖</span><span class="chip">錄影</span></div>
+    </div>
+    <div class="media">
+      <div class="paper r"><img src="assets/canon-550d.webp" alt="Canon EOS 550D" style="width:400px"><div class="spec"><span>Canon EOS 550D</span><span>EF-S 18-135mm</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 04 A7 IV ===== -->
+<section class="slide l-split" data-section="01 · 起點" data-mm="35">
+  <div class="content">
+    <div class="text">
+      <div class="kicker zh r">漸漸開始想要厲害的器材</div>
+      <h2 class="r">對焦速度、<br>大光圈、<br>五級防手震</h2>
+      <p class="lead r">於是我買了<br><b>Sony A7 IV ＋ Tamron 35-150 F2-2.8</b>。</p>
+    </div>
+    <div class="media">
+      <div class="paper r"><img src="assets/a7iv-tamron.webp" alt="Sony A7 IV 與 Tamron 35-150" style="height:560px"><div class="spec"><span>A7 IV 659g</span><span>35-150 1,165g</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 05 商業攝影 ===== -->
+<section class="slide l-split wide" data-section="01 · 起點" data-mm="35">
+  <div class="content">
+    <div class="text">
+      <div class="kicker zh r">當然也用它</div>
+      <h2 class="r">拍了一些<br>商業攝影</h2>
+      <p class="lead r">菜單、海報、餐點形象照。</p>
+    </div>
+    <div class="media">
+      <figure class="frame r" data-ar="0.647"><img src="assets/food-1.webp" alt="饗家古早雞菜單"><figcaption><span>Menu</span><b>01</b></figcaption></figure>
+      <figure class="frame r" data-ar="0.72"><img src="assets/food-2.webp" alt="單人海陸套餐海報"><figcaption><span>Poster</span><b>02</b></figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 06 旅遊 ===== -->
+<section class="slide l-strip" data-section="01 · 起點" data-mm="35">
+  <div class="content">
+    <div class="head"><div class="kicker zh r">旅遊的時候</div><h2 class="r">也能拍出好照片</h2></div>
+    <div class="row">
+      <figure class="frame r" data-ar="1.333"><img src="assets/travel-1.webp" alt="黃龍瀑布"><figcaption><span>A7 IV</span><b>1/3</b></figcaption></figure>
+      <figure class="frame r" data-ar="0.75"><img src="assets/travel-2.webp" alt="藍色湖水"><figcaption><span>A7 IV</span><b>2/3</b></figcaption></figure>
+      <figure class="frame r" data-ar="1.333"><img src="assets/travel-3.webp" alt="瀑布近景"><figcaption><span>A7 IV</span><b>3/3</b></figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 07 結果發現 ===== -->
+<section class="slide l-state" data-section="01 · 起點" data-mm="35">
+  <div class="content">
+    <div class="kicker zh r">結果最後才發現</div>
+    <h2 class="r">拍風景，大景出大片。<br>人像的三要素：<br><em>Model、Model、Model。</em></h2>
+  </div>
+</section>
+
+<!-- ===== 08 兩公斤 ===== -->
+<section class="slide l-state" data-section="01 · 起點" data-mm="35">
+  <div class="content">
+    <div class="kicker zh r">而且</div>
+    <div class="bignum r">1,824<small>g</small></div>
+    <h2 class="r">這傢伙要兩公斤啊。</h2>
+  </div>
+</section>
+
+<!-- ===== 09 GR3x ===== -->
+<section class="slide l-split" data-section="02 · GR3x" data-mm="40">
+  <div class="content">
+    <div class="text">
+      <div class="kicker zh r">後來我妹跑來問我</div>
+      <h2 class="r">最近文青好像<br>都在流行 GR3x</h2>
+      <p class="lead r">問我要不要買。<br>不查還好，一查驚人。</p>
+      <div class="price r"><span class="was">NT$31,900</span><span class="arrow">▶</span><span class="now">NT$40,000+</span></div>
+    </div>
+    <div class="media">
+      <div class="paper r"><img src="assets/gr3x.webp" alt="Ricoh GR IIIx" style="width:460px"><div class="spec"><span>Ricoh GR IIIx</span><span>26.1mm F2.8 · APS-C</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 10 GR3x 優缺點 ===== -->
+<section class="slide l-state" data-section="02 · GR3x" data-mm="40">
+  <div class="content">
+    <div class="kicker zh r">但拍出來的東西十分有味道，而且很輕便</div>
+    <div class="cols r">
+      <div>
+        <div class="lab">規格上</div>
+        <ul><li>錄影能力很差</li><li>對焦能力也很差</li><li>續航能力非常 GG</li></ul>
+      </div>
+      <div class="vs"></div>
+      <div>
+        <div class="lab">可是</div>
+        <blockquote>你帶著它出門，<br>總是會想把它拿起來，<br>紀錄那個瞬間。</blockquote>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 11 GR 照片 ===== -->
+<section class="slide l-strip" data-section="02 · GR3x" data-mm="40">
+  <div class="content">
+    <div class="head"><div class="kicker zh r">Ricoh GR IIIx</div><h2 class="r">帶著它出門的瞬間</h2></div>
+    <div class="row">
+      <figure class="frame r" data-ar="1.5"><img src="assets/gr-1.webp" alt="日本街道"><figcaption><span>Positive Film</span><b>1/3</b></figcaption></figure>
+      <figure class="frame r" data-ar="0.667"><img src="assets/gr-3.webp" alt="淺草雷門燈籠"><figcaption><span>Positive Film</span><b>2/3</b></figcaption></figure>
+      <figure class="frame r" data-ar="0.667"><img src="assets/gr-2.webp" alt="電線與巷弄"><figcaption><span>Positive Film</span><b>3/3</b></figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 12 黑白機 ===== -->
+<section class="slide l-split" data-section="02 · GR3x" data-mm="40">
+  <div class="content">
+    <div class="text">
+      <div class="kicker zh r">理光最近出了一台黑白機</div>
+      <h2 class="r">沒有顏色，<br>不能換鏡頭，<br>一台六萬多。</h2>
+      <p class="lead r">很多相機都有黑白功能，<br>最近連神牛都出了一台。<br><b>那它到底在賣什麼？</b></p>
+    </div>
+    <div class="media">
+      <div class="paper r"><img src="assets/godox.webp" alt="Godox 相機" style="height:520px"><div class="spec"><span>Godox</span><span>Compact</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 13 情緒價值 ===== -->
+<section class="slide l-state" data-section="03 · 賣的是什麼" data-mm="40">
+  <div class="content">
+    <div class="kicker zh r">我們其實在賣的是</div>
+    <h2 class="r">創作整個流程的<em>情緒價值</em>，<br>和後續的流程。</h2>
+  </div>
+</section>
+
+<!-- ===== 14 願不願意拿起來 ===== -->
+<section class="slide l-state" data-section="03 · 賣的是什麼" data-mm="40">
+  <div class="content">
+    <div class="kicker zh r">所以一台相機</div>
+    <h2 class="r">重要的不是參數有多厲害，<br>而是你願不願意<em>拿起來拍照</em>。</h2>
+  </div>
+</section>
+
+<!-- ===== 15 生日禮物 ===== -->
+<section class="slide l-split" data-section="03 · 賣的是什麼" data-mm="75">
+  <div class="content">
+    <div class="text">
+      <div class="kicker zh r">前幾年送我妹的生日禮物</div>
+      <h2 class="r">GR3x 的望遠接環<br>和鏡頭</h2>
+      <p class="lead r">讓她想拿起來拍的次數，再多一點。</p>
+    </div>
+    <div class="media">
+      <figure class="frame r" data-ar="1"><img src="assets/gr-tele.webp" alt="GR3x 望遠接環"><figcaption><span>GT-2 Tele Conversion</span><b>75mm</b></figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 16 三個問題 ===== -->
+<section class="slide l-state" data-section="04 · 元兇" data-mm="24">
+  <div class="content">
+    <div class="kicker zh r">我一直在思考</div>
+    <h2 class="r">拍出一張有感覺的照片，<br>到底要有什麼元素？</h2>
+    <ul class="qs r">
+      <li><b>Q1</b><span>為什麼 <strong>iPhone</strong> 拍不太出來？</span></li>
+      <li><b>Q2</b><span>為什麼 <strong>A7 IV</strong> 拍出來的東西不有趣？</span></li>
+      <li><b>Q3</b><span>套<strong>濾鏡</strong>為什麼顯得廉價、無聊？</span></li>
+    </ul>
+  </div>
+</section>
+
+<!-- ===== 17 元兇 ===== -->
+<section class="slide l-full" data-section="04 · 元兇" data-mm="24">
+  <img class="bg" src="assets/computational.webp" alt="Computational photography 發表會">
+  <div class="shade"></div>
+  <div class="content">
+    <div class="kicker zh r">我後來找到一個特別的元兇</div>
+    <h2 class="r">運算攝影</h2>
+    <p class="lead r">Computational Photography，<b>或者說 AI Photography</b>。</p>
+  </div>
+</section>
+
+<!-- ===== 18 離真實越來越遠 ===== -->
+<section class="slide l-split" data-section="04 · 元兇" data-mm="24">
+  <div class="content">
+    <div class="text">
+      <div class="kicker zh r">我們拍的東西</div>
+      <h2 class="r">離真實世界<br>越來越遠。</h2>
+      <p class="lead r">AI 可以幫我們把人、把景物變好看，<br><b>但同時，也看不見真實。</b></p>
+    </div>
+    <div class="media">
+      <figure class="frame r" data-ar="1.34"><img src="assets/moon-mode.webp" alt="手機月亮模式說明文件"><figcaption><span>Moon Mode</span><span>Master AI</span></figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 19 HDR ===== -->
+<section class="slide l-split" data-section="04 · 元兇" data-mm="24">
+  <div class="content">
+    <div class="text">
+      <div class="kicker zh r">可以從最早的 HDR 罪證講起</div>
+      <h2 class="r">High Dynamic<br>Range</h2>
+      <p class="lead r">能拍到的暗部和亮部範圍很大。<br>過去要做到這件事，靠的是<b>包圍曝光</b>：<br>拍好幾張不同曝光，再合成一張。</p>
+    </div>
+    <div class="media">
+      <figure class="frame r" data-ar="1.375"><img src="assets/bracketing.webp" alt="包圍曝光四張"><figcaption><span>Bracketing</span><span>圖 1–4</span></figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 20 iPhone 更狠 ===== -->
+<section class="slide l-strip" data-section="04 · 元兇" data-mm="24">
+  <div class="content">
+    <div class="head"><div class="kicker zh r">iPhone 做得更狠</div><h2 class="r">白平衡、人物辨識、臉部辨識、深度圖……<br>再全部合在一起做撒尿牛丸。</h2></div>
+    <div class="row">
+      <figure class="frame r" data-ar="1.777"><img src="assets/deep-fusion.webp" alt="Deep Fusion 多張合成"><figcaption><span>Deep Fusion</span><span>9 frames</span></figcaption></figure>
+      <figure class="frame r" data-ar="1.777"><img src="assets/iphone-pipeline.webp" alt="iPhone 影像處理流程"><figcaption><span>Photonic Engine</span><span>Pipeline</span></figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 21 不想要 HDR ===== -->
+<section class="slide l-state" data-section="04 · 元兇" data-mm="24">
+  <div class="content">
+    <div class="kicker zh r">但萬一我們不想要 HDR 呢？</div>
+    <h2 class="r">很抱歉，沒有辦法。</h2>
+    <p class="lead r">iPhone 13 之後的機型，一定會幫你拍一堆照片合成起來。<br>就算拍 <b>RAW</b>，也是拍了好幾張再處理。</p>
+  </div>
+</section>
+
+<!-- ===== 比較：原生相機 vs Gintone ===== -->
+<section class="slide l-strip cmp" data-section="04 · 元兇" data-mm="24">
+  <div class="content">
+    <div class="head"><div class="kicker zh r">同一支手機、同一杯酒、同一秒</div><h2 class="r">看得出差別嗎？</h2></div>
+    <div class="row">
+      <figure class="frame r" data-ar="0.75"><img src="assets/cmp-native.webp" alt="iPhone 原生相機拍攝"><figcaption><span>iPhone 原生相機</span><span>HDR 多張合成</span></figcaption></figure>
+      <figure class="frame r" data-ar="0.75"><img src="assets/cmp-gintone.webp" alt="Gintone 拍攝"><figcaption><span>Gintone</span><b>Apple Log 單幀</b></figcaption></figure>
+    </div>
+    <div class="cmp-note r"><span>燭光被壓平、暗部被拉亮，每一處都「正確」，但沒有現場的感覺。</span><span>高光炸開、對比留著，就是那天眼睛看到的樣子。</span></div>
+  </div>
+</section>
+
+<!-- ===== 22 我的一招 ===== -->
+<section class="slide l-state" data-section="05 · 我的一招" data-mm="48">
+  <div class="content">
+    <div class="kicker zh r">我用了一招</div>
+    <h2 class="r">趁人之危、殺雞取卵</h2>
+    <div class="steps r">
+      <div class="step"><div class="n">01</div><h3>用錄影模式拍</h3><p>為了每秒 60 幀，iPhone 基本上沒有多餘的力氣，幫我們做那麼多事。</p></div>
+      <div class="step"><div class="n">02</div><h3>用 Apple Log 記錄</h3><p>把光線資訊記錄得最完整，不先幫你決定樣子。</p></div>
+      <div class="step"><div class="n">03</div><h3>抓其中一幀當照片</h3><p>後續套濾鏡的時候，可以有更好的寬容度。</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 23 什麼是 Log ===== -->
+<section class="slide l-strip" data-section="05 · 我的一招" data-mm="48">
+  <div class="content">
+    <div class="head"><div class="kicker zh r">什麼是 Log？</div><h2 class="r">先把畫面拍得灰灰的，再決定它長什麼樣子。</h2></div>
+    <div class="row">
+      <figure class="frame r" data-ar="1.777"><img src="assets/slog3.webp" alt="S-Log3 未調色與套 LUT 對比"><figcaption><span>Sony S-Log3</span><span>Ungraded / LUT</span></figcaption></figure>
+      <figure class="frame r" data-ar="1"><img src="assets/apple-log.webp" alt="iPhone Apple Log 與 LUT 對比"><figcaption><span>iPhone Apple Log</span><span>Log / LUT</span></figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 24 Log 曲線 ===== -->
+<section class="slide l-split" data-section="05 · 我的一招" data-mm="48">
+  <div class="content">
+    <div class="text">
+      <div class="kicker zh r">Log 曲線</div>
+      <h2 class="r">不是顏色比較多，<br>而是把光線記得<br>更完整。</h2>
+      <p class="lead r">高光不容易過曝、暗部保留更多細節。<br>看起來灰、對比低，所以需要後製調色。</p>
+    </div>
+    <div class="media">
+      <figure class="frame r" data-ar="1.094"><img src="assets/log-curve.webp" alt="Log 曲線與 Rec.709 對比說明"><figcaption><span>Rec.709 vs Log</span><span>LUT / 調色</span></figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 25 Gintone 黑白 ===== -->
+<section class="slide l-strip" data-section="06 · Gintone" data-mm="48">
+  <div class="content">
+    <div class="head"><div class="kicker zh r">所以我做了自己的相機</div><h2 class="r">SoftBlackAndWhite · 48mm</h2></div>
+    <div class="row">
+      <figure class="frame r" data-ar="1.333"><img src="assets/g-bw-2.webp" alt="黑白街拍 阿嬤"><figcaption><span>SoftBlackAndWhite</span><b>12/36</b></figcaption></figure>
+      <figure class="frame bare r" data-ar="0.6425"><img src="assets/frame-street.webp" alt="Gintone 相框 街景"></figure>
+      <figure class="frame bare r" data-ar="0.6425"><img src="assets/frame-building.webp" alt="Gintone 相框 大樓"></figure>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 26 Gintone 彩色 ===== -->
+<section class="slide l-strip" data-section="06 · Gintone" data-mm="24">
+  <div class="content">
+    <div class="head"><div class="kicker zh r">同一卷，同一個世界觀</div><h2 class="r">Apple Log 抓出來的一幀</h2></div>
+    <div class="row">
+      <figure class="frame r" data-ar="1.333"><img src="assets/g-rain.webp" alt="雨中撐傘"><figcaption><span>BlueHour</span><b>7/36</b></figcaption></figure>
+      <figure class="frame r" data-ar="1.333"><img src="assets/g-building.webp" alt="藍色玻璃帷幕"><figcaption><span>BlueHour</span><b>9/36</b></figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 27 Gintone 狗與月亮 ===== -->
+<section class="slide l-strip" data-section="06 · Gintone" data-mm="24">
+  <div class="content">
+    <div class="head"><div class="kicker zh r">不用很厲害的器材</div><h2 class="r">只要你願意把它拿起來</h2></div>
+    <div class="row">
+      <figure class="frame r" data-ar="1.333"><img src="assets/g-dog-1.webp" alt="七星潭的狗"><figcaption><span>BlueHour</span><b>14/36</b></figcaption></figure>
+      <figure class="frame r" data-ar="0.75"><img src="assets/g-dog-2.webp" alt="狗與烏雲"><figcaption><span>BlueHour</span><b>15/36</b></figcaption></figure>
+      <figure class="frame r" data-ar="0.75"><img src="assets/g-moon.webp" alt="海上的月亮"><figcaption><span>Night</span><b>2/36</b></figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 為什麼叫 Gintone（一） ===== -->
+<section class="slide l-split" data-section="07 · 名字" data-mm="48">
+  <div class="content">
+    <div class="text">
+      <div class="kicker zh r">至於這個 app 為什麼叫 Gintone？</div>
+      <h2 class="r">因為我很喜歡<br>一款調酒：<br>Gin Tonic。</h2>
+      <p class="lead r">就是因為它很單純，<br>才能用一種愉悅的心情去品嚐。<br>琴酒特殊的蒸餾香氣，<b>會渲染每一杯琴通尼</b>。</p>
+    </div>
+    <div class="media">
+      <div class="recipe r">
+        <div class="rt">Gin &amp; Tonic</div>
+        <ul>
+          <li><b>01</b><span>琴酒</span><i>Gin</i></li>
+          <li><b>02</b><span>通寧水</span><i>Tonic water</i></li>
+          <li><b>03</b><span>一塊老冰</span><i>One big rock</i></li>
+        </ul>
+        <div class="rf"><span>Simple</span><span>·</span><span>Pleasant</span><span>·</span><span>Aromatic</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 為什麼叫 Gintone（二） ===== -->
+<section class="slide l-state" data-section="07 · 名字" data-mm="48">
+  <div class="content">
+    <div class="kicker zh r">剛好我的綽號叫做「大軍」，跟 Gin 很像</div>
+    <div class="eq r">
+      <div class="row1"><span class="zh">大軍</span><span class="op">≈</span><span class="en">GIN</span></div>
+      <div class="row1"><span class="zh">調</span><span class="op">=</span><span class="en">TONE</span></div>
+      <div class="row1 sum"><span class="zh">大軍的調</span><span class="op">＝</span><span class="en"><em>GINTONE</em></span></div>
+    </div>
+    <p class="lead r">大軍的 tone 調，就叫做 Gintone 啦。</p>
+  </div>
+</section>
+
+<!-- ===== 28 焦段 ===== -->
+<section class="slide l-split" data-section="08 · App" data-mm="13">
+  <div class="content">
+    <div class="text">
+      <div class="kicker zh r">來介紹一下我的 app，相當簡單明瞭</div>
+      <h2 class="r">一打開，<br>就是選一個焦段。</h2>
+      <div class="chips r"><span class="chip">13mm</span><span class="chip">24mm</span><span class="chip">48mm</span><span class="chip">77 / 120mm</span></div>
+      <p class="note r">77mm / 120mm 依機型而定</p>
+    </div>
+    <div class="media">
+      <div class="phone r"><img src="assets/app-lens.webp" alt="Gintone 選一顆鏡頭畫面"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 29 定焦鏡 ===== -->
+<section class="slide l-state" data-section="08 · App" data-mm="48">
+  <div class="content">
+    <div class="kicker zh r">為什麼這樣設計？</div>
+    <h2 class="r">定焦鏡教會我的事。</h2>
+    <p class="lead r">每次出門總是喜歡放大縮小、切換鏡頭。但當你被限制在一個焦段，<br>你就會開始<b>移動你的腳步、改變高度和角度</b>，只為了得到一個好構圖。</p>
+    <p class="lead r">少了一些自由度，換來的是整卷統一的視角，看的人感受也更好。</p>
+  </div>
+</section>
+
+<!-- ===== 30 膠卷 ===== -->
+<section class="slide l-split" data-section="08 · App" data-mm="24">
+  <div class="content">
+    <div class="text">
+      <div class="kicker zh r">再來</div>
+      <h2 class="r">選一個膠卷。</h2>
+      <p class="lead r">我很喜歡 GR3 的各種膠片模擬，那些顏色會讓整個旅程蒙上一種特別的氛圍。</p>
+      <p class="lead r">所以在 <b>36 張</b>拍完之前，<br>你都是用同一個世界觀在創作。</p>
+    </div>
+    <div class="media">
+      <div class="phone r"><img src="assets/app-film.webp" alt="Gintone 選膠卷畫面 BlueArchitecture"></div>
+      <figure class="frame bare r" data-fixed style="width:444px;height:700px"><img src="assets/frame-bluehour.webp" alt="Gintone 相框 疊石"></figure>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 31 拍攝介面 ===== -->
+<section class="slide l-split" data-section="08 · App" data-mm="48">
+  <div class="content">
+    <div class="text">
+      <div class="kicker zh r">拍攝的介面</div>
+      <h2 class="r">極簡。<br>只能調曝光、<br>閃光燈、快門。</h2>
+      <p class="lead r">其他什麼都沒有，<br><b>讓拍攝者專注在拍攝創作上。</b></p>
+    </div>
+    <div class="media">
+      <div class="phone r"><img src="assets/app-shoot.webp" alt="Gintone 拍攝畫面"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 32 配樂 ===== -->
+<section class="slide l-split" data-section="08 · App" data-mm="24">
+  <div class="content">
+    <div class="text">
+      <div class="kicker zh r">拍完之後</div>
+      <h2 class="r">一鍵配上音樂，<br>直接分享到 IG。</h2>
+      <p class="lead r">加入 <b>Music Understanding API</b>，辨識輸入音樂的節奏，<br>讓每一個小節的音樂，都直接對上一張照片。</p>
+    </div>
+    <div class="media">
+      <div class="phone r"><img src="assets/app-music.webp" alt="Gintone 配樂畫面"></div>
+      <div class="music narrow r">
+        <div class="thumbs">
+          <img src="assets/g-bw-2.webp" alt=""><img src="assets/g-rain.webp" alt=""><img src="assets/g-dog-1.webp" alt=""><img src="assets/g-building.webp" alt=""><img src="assets/gr-1.webp" alt=""><img src="assets/g-moon.webp" alt="">
+        </div>
+        <div class="wave" data-wave="60"></div>
+        <div class="bars"><span>Bar 01</span><span>02</span><span>03</span><span>04</span><span>05</span><span>06</span></div>
+        <div class="bpm">1 bar / frame · 54 bpm</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 33 影片 ===== -->
+<section class="slide l-split" data-section="08 · App" data-mm="48">
+  <div class="content">
+    <div class="text">
+      <div class="kicker zh r">最後</div>
+      <h2 class="r">一卷底片，<br>一首歌。</h2>
+      <p class="lead r">每一小節對上一張照片，<br>做成影片，直接分享。</p>
+      <p class="note r">▶ 進到這頁會自動播放 · 點影片可暫停</p>
+    </div>
+    <div class="media">
+      <div class="phone video r"><video src="assets/gintone-film.mp4" poster="assets/gintone-film-poster.webp" playsinline preload="metadata"></video></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 34 結尾 ===== -->
+<section class="slide l-title end" data-section="Thanks" data-mm="48">
+  <div class="tick"></div>
+  <div class="wrap">
+    <div class="kicker r">That's Gintone</div>
+    <h1 class="r">以上就是<br>Gintone 的設計理念</h1>
+    <p class="sub r">謝謝啦。</p>
+    <a class="qr r" href="https://gintone.app/" target="_blank" rel="noopener"><img src="assets/qr-gintone.png" alt="gintone.app QR code"><span><b>gintone.app</b>掃描或點擊前往</span></a>
+  </div>
+  <figure class="frame hero bare r"><img src="assets/frame-jbl.webp" alt="Gintone 相框 高空作業"></figure>
+</section>
+
+</main>
+</div>
+
+<!-- 簡報之外的編輯 UI -->
+<div class="edit-hotzone" aria-hidden="true"></div>
+<button class="edit-toggle" id="editToggle" title="編輯模式 (E)">✎</button>
+<div class="edit-hint">編輯模式：點文字直接修改 · Ctrl/⌘+S 下載 · E 離開</div>
+
+<script>
+/* ===========================================
+   DECK CHROME — 每頁注入底片齒孔與四角 HUD
+   =========================================== */
+(function injectChrome(){
+  const slides=[...document.querySelectorAll('.slide')];
+  const total=String(slides.length).padStart(2,'0');
+  const holes=()=>Array.from({length:10},(_,i)=>`<i style="top:${60+i*100}px"></i>`).join('');
+  slides.forEach((s,i)=>{
+    const n=String(i+1).padStart(2,'0');
+    const mm=s.dataset.mm||'48';
+    const sec=s.dataset.section||'Design Notes';
+    s.insertAdjacentHTML('afterbegin',
+      `<div class="strip l" data-chrome>${holes()}</div><div class="strip rr" data-chrome>${holes()}</div>`+
+      `<div class="hud h1" data-chrome>Gintone</div><div class="hud h2" data-chrome>${sec}</div>`+
+      `<div class="hud h3" data-chrome>Ryan Liou · Design Notes</div><div class="hud h4" data-chrome>${mm}mm &nbsp; <b>${n}/${total}</b></div>`);
+    // 交錯淡入：依 DOM 順序給每個 .r 一個索引
+    s.querySelectorAll('.r').forEach((el,k)=>el.style.setProperty('--i',k));
+  });
+})();
+
+/* ===========================================
+   FRAME FITTING — 依 data-ar 把一排相框塞進容器
+   容器：.row（strip 版）與 .media（split 版）
+   =========================================== */
+function fitFrames(){
+  document.querySelectorAll('.row,.media').forEach(box=>{
+    const frames=[...box.children].filter(el=>el.classList.contains('frame')&&!el.hasAttribute('data-fixed'));
+    if(!frames.length) return;
+    const W=box.clientWidth, H=box.clientHeight, gap=30;
+    const ars=frames.map(f=>parseFloat(f.dataset.ar)||4/3);
+    const px=frames.map(f=>f.classList.contains('bare')?0:44);
+    const py=frames.map(f=>f.classList.contains('bare')?0:88);
+    const h=Math.min(H-Math.max(...py), (W-gap*(frames.length-1)-px.reduce((a,b)=>a+b,0))/ars.reduce((a,b)=>a+b,0));
+    frames.forEach((f,i)=>{f.style.width=Math.round(h*ars[i]+px[i])+'px';f.style.height=Math.round(h+py[i])+'px';});
+  });
+}
+
+/* ===========================================
+   WAVEFORM — 配樂頁的波形（確定性的正弦組合）
+   =========================================== */
+(function buildWave(){
+  document.querySelectorAll('[data-wave]').forEach(w=>{
+    const n=parseInt(w.dataset.wave,10)||96; let html='';
+    for(let i=0;i<n;i++){
+      const v=0.35+0.3*Math.abs(Math.sin(i*0.55))+0.3*Math.abs(Math.sin(i*0.17+1))*Math.abs(Math.cos(i*0.9));
+      html+=`<i class="${i%12===0?'beat':''}" style="height:${Math.round(v*100)}%"></i>`;
+    }
+    w.innerHTML=html;
+  });
+})();
+
+/* ===========================================
+   SLIDE PRESENTATION CONTROLLER
+   鍵盤：← → ↑ ↓ 空白 PgUp PgDn Home End ／ 觸控滑動 ／ 滾輪
+   網址 #n 可直接跳到第 n 頁
+   =========================================== */
+class SlidePresentation{
+  constructor(){
+    this.slides=[...document.querySelectorAll('.slide')];
+    this.stage=document.getElementById('deckStage');
+    this.current=0;
+    this.setupStageScale();
+    this.setupKeyboard();
+    this.setupTouch();
+    this.setupWheel();
+    const fromHash=parseInt(location.hash.slice(1),10);
+    this.show(isNaN(fromHash)?0:fromHash-1);
+  }
+  setupStageScale(){
+    const scale=()=>{
+      const k=Math.min(innerWidth/1920,innerHeight/1080);
+      const x=(innerWidth-1920*k)/2, y=(innerHeight-1080*k)/2;
+      this.stage.style.transform=`translate(${x}px,${y}px) scale(${k})`;
+    };
+    scale(); addEventListener('resize',scale);
+  }
+  setupKeyboard(){
+    addEventListener('keydown',e=>{
+      if(document.body.classList.contains('editing') && e.target.getAttribute('contenteditable')) return;
+      const k=e.key;
+      if(['ArrowRight','ArrowDown',' ','PageDown'].includes(k)){e.preventDefault();this.next();}
+      else if(['ArrowLeft','ArrowUp','PageUp'].includes(k)){e.preventDefault();this.prev();}
+      else if(k==='Home'){this.show(0);} else if(k==='End'){this.show(this.slides.length-1);}
+    });
+  }
+  setupTouch(){
+    let x0=null;
+    addEventListener('touchstart',e=>{x0=e.touches[0].clientX;},{passive:true});
+    addEventListener('touchend',e=>{
+      if(x0===null) return; const dx=e.changedTouches[0].clientX-x0; x0=null;
+      if(Math.abs(dx)>50) dx<0?this.next():this.prev();
+    },{passive:true});
+  }
+  setupWheel(){
+    let lock=false;
+    addEventListener('wheel',e=>{
+      if(lock||Math.abs(e.deltaY)<30) return;
+      lock=true; setTimeout(()=>lock=false,700);
+      e.deltaY>0?this.next():this.prev();
+    },{passive:true});
+  }
+  show(i){
+    this.current=Math.max(0,Math.min(i,this.slides.length-1));
+    this.slides.forEach((s,k)=>{
+      const on=k===this.current;
+      s.classList.toggle('active',on);
+      s.classList.toggle('visible',on);   // 離開時移除，回來會再播一次淡入
+      const v=s.querySelector('video');
+      if(v){ if(on){ v.currentTime=0; v.play().catch(()=>{}); } else { v.pause(); } }
+    });
+    history.replaceState(null,'','#'+(this.current+1));
+  }
+  next(){this.show(this.current+1)} prev(){this.show(this.current-1)}
+}
+
+/* ===========================================
+   INLINE EDITOR — 點文字直接改，自動存到 localStorage，Ctrl/⌘+S 下載整份 HTML
+   =========================================== */
+class InlineEditor{
+  constructor(){
+    this.key='gintone-deck-edits';
+    this.isActive=false;
+    this.sel='h1,h2,h3,p,li,.chip,.kicker,.spec span,figcaption span,figcaption b,.num,.lab,.price span,blockquote,.cols .lab';
+    this.restore();
+    this.bind();
+  }
+  editable(){return [...document.querySelectorAll('.slide')].flatMap(s=>[...s.querySelectorAll(this.sel)]);}
+  toggleEditMode(){
+    this.isActive=!this.isActive;
+    document.body.classList.toggle('editing',this.isActive);
+    document.getElementById('editToggle').classList.toggle('active',this.isActive);
+    this.editable().forEach(el=>{
+      if(this.isActive){el.setAttribute('contenteditable','true');}
+      else{el.removeAttribute('contenteditable');}
+    });
+    if(!this.isActive){this.save();}
+  }
+  save(){
+    try{
+      const data=[...document.querySelectorAll('.slide')].map(s=>[...s.querySelectorAll(this.sel)].map(el=>el.innerHTML));
+      localStorage.setItem(this.key,JSON.stringify(data));
+    }catch(e){}
+  }
+  restore(){
+    try{
+      const data=JSON.parse(localStorage.getItem(this.key)||'null'); if(!data) return;
+      [...document.querySelectorAll('.slide')].forEach((s,i)=>{
+        const els=[...s.querySelectorAll(this.sel)];
+        (data[i]||[]).forEach((html,k)=>{if(els[k]&&typeof html==='string') els[k].innerHTML=html;});
+      });
+    }catch(e){}
+  }
+  exportHTML(){
+    const clone=document.documentElement.cloneNode(true);
+    clone.querySelectorAll('[data-chrome]').forEach(n=>n.remove());          // 注入的 HUD／齒孔會在載入時重建
+    clone.querySelectorAll('[data-wave]').forEach(n=>n.innerHTML='');
+    clone.querySelectorAll('[contenteditable]').forEach(n=>n.removeAttribute('contenteditable'));
+    clone.querySelectorAll('.slide').forEach(s=>{s.classList.remove('active','visible');s.querySelectorAll('.frame').forEach(f=>{f.style.width='';f.style.height='';});});
+    clone.querySelector('body').classList.remove('editing');
+    clone.querySelector('#deckStage').style.transform='';
+    const html='<!DOCTYPE html>\n'+clone.outerHTML;
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(new Blob([html],{type:'text/html'}));
+    a.download='index.html'; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  }
+  bind(){
+    const toggle=document.getElementById('editToggle'), hot=document.querySelector('.edit-hotzone');
+    let hide=null;
+    const later=()=>{hide=setTimeout(()=>{if(!this.isActive) toggle.classList.remove('show');},400);};
+    toggle.addEventListener('click',()=>this.toggleEditMode());
+    hot.addEventListener('mouseenter',()=>{clearTimeout(hide);toggle.classList.add('show');});
+    hot.addEventListener('mouseleave',later);
+    toggle.addEventListener('mouseenter',()=>clearTimeout(hide));
+    toggle.addEventListener('mouseleave',later);
+    hot.addEventListener('click',()=>this.toggleEditMode());
+    addEventListener('keydown',e=>{
+      if((e.key==='e'||e.key==='E') && !e.metaKey && !e.ctrlKey && !e.target.getAttribute('contenteditable')) this.toggleEditMode();
+      if((e.metaKey||e.ctrlKey) && e.key.toLowerCase()==='s'){e.preventDefault();this.save();this.exportHTML();}
+    });
+    document.addEventListener('input',e=>{if(this.isActive&&e.target.getAttribute('contenteditable')) this.save();});
+  }
+}
+
+fitFrames();
+addEventListener('load',fitFrames);
+document.querySelectorAll('.phone.video').forEach(p=>p.addEventListener('click',()=>{const v=p.querySelector('video');v.paused?v.play():v.pause();}));
+const editor=new InlineEditor();
+new SlidePresentation();
+</script>
+</body>
+</html>
