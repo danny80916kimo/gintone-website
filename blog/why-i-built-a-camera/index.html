@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>為什麼我要做一台相機 — Gintone Blog</title>
+<meta name="description" content="從 16 歲的第一台 Cyber-shot、兩公斤的 A7 IV、妹妹想買的 GR3x，到我自己做了一台相機 app。一篇關於運算攝影、Apple Log，和「願不願意拿起來拍」的故事。">
+<meta property="og:title" content="為什麼我要做一台相機">
+<meta property="og:description" content="從第一台 Cyber-shot 到自己做一台相機 app。一篇關於運算攝影、Apple Log，和「願不願意拿起來拍」的故事。">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://gintone.app/blog/why-i-built-a-camera/">
+<meta property="og:image" content="https://gintone.app/slides/assets/frame-jbl.webp">
+<link rel="canonical" href="https://gintone.app/blog/why-i-built-a-camera/">
+<link rel="icon" type="image/png" href="../../uploads/app-icon.png">
+<link rel="apple-touch-icon" href="../../uploads/app-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Libre+Franklin:wght@400;500;600;700&family=Noto+Serif+TC:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ===== 基底：沿用官網的色彩與字體 ===== */
+html{scroll-behavior:auto}
+body{margin:0;background:#0b0a09;color:#f2efe9;font-family:"Libre Franklin","Noto Serif TC",sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#f2efe9;text-decoration:none}
+a:hover{color:oklch(0.72 0.16 45)}
+::selection{background:oklch(0.72 0.16 45);color:#0b0a09}
+img{max-width:100%;display:block}
+.mono{font:500 11px 'IBM Plex Mono',monospace;letter-spacing:.24em}
+.accent{color:oklch(0.72 0.16 45)}
+
+/* ===== 導覽列（與首頁相同） ===== */
+.top{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;justify-content:space-between;align-items:center;padding:18px clamp(20px,5vw,56px);background:linear-gradient(#0b0a09 30%,transparent)}
+.top .brand{display:flex;align-items:center;gap:12px}
+.top .brand img{width:30px;height:30px;border-radius:7px}
+.top .brand span{font:600 15px 'IBM Plex Mono',monospace;letter-spacing:.24em}
+.top nav{display:flex;align-items:center;gap:20px;font:500 11px 'IBM Plex Mono',monospace;letter-spacing:.16em}
+.top nav .pill{padding:10px 18px;border:1px solid rgba(242,239,233,.25);border-radius:999px}
+.progress{position:fixed;left:0;top:0;height:2px;background:oklch(0.72 0.16 45);z-index:51;width:0}
+
+/* ===== 文章版面 ===== */
+.hero{max-width:820px;margin:0 auto;padding:160px clamp(20px,6vw,64px) 0}
+.hero h1{margin:22px 0 0;font:700 clamp(36px,6.4vw,72px)/1.25 'Noto Serif TC',serif;letter-spacing:.03em;text-wrap:balance}
+.hero .lede{margin:28px 0 0;font:400 clamp(16px,1.8vw,20px)/1.9 'Libre Franklin','Noto Serif TC',sans-serif;color:rgba(242,239,233,.6);text-wrap:pretty}
+.hero .meta{margin-top:36px;display:flex;flex-wrap:wrap;gap:10px 22px;font:500 11px 'IBM Plex Mono',monospace;letter-spacing:.16em;color:rgba(242,239,233,.45)}
+.cover{max-width:980px;margin:56px auto 0;padding:0 clamp(20px,6vw,64px)}
+.cover figure{margin:0}
+.cover img{width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:12px}
+
+article{max-width:720px;margin:0 auto;padding:40px clamp(20px,6vw,64px) 80px}
+article h2{margin:88px 0 0;font:600 clamp(26px,3.4vw,40px)/1.4 'Noto Serif TC',serif;letter-spacing:.02em}
+article h2 .num{display:block;margin-bottom:16px;font:500 11px 'IBM Plex Mono',monospace;letter-spacing:.24em;color:oklch(0.72 0.16 45)}
+article h3{margin:44px 0 0;font:600 clamp(19px,2.2vw,24px)/1.5 'Noto Serif TC',serif}
+article p{margin:22px 0 0;font:400 clamp(15px,1.6vw,17px)/2.05 'Libre Franklin','Noto Serif TC',sans-serif;color:rgba(242,239,233,.72);text-wrap:pretty}
+article p strong{color:#f2efe9;font-weight:600}
+article ul{margin:18px 0 0;padding-left:22px}
+article li{margin-top:8px;font:400 clamp(15px,1.6vw,17px)/1.9 'Libre Franklin','Noto Serif TC',sans-serif;color:rgba(242,239,233,.72)}
+article li::marker{color:oklch(0.72 0.16 45)}
+
+/* 引言：官網宣言那種大字 */
+.pull{margin:48px 0 0;padding-left:26px;border-left:2px solid oklch(0.72 0.16 45);font:600 clamp(21px,2.6vw,30px)/1.75 'Noto Serif TC',serif;color:#f2efe9;text-wrap:balance}
+.pull small{display:block;margin-top:12px;font:500 11px 'IBM Plex Mono',monospace;letter-spacing:.2em;color:rgba(242,239,233,.4)}
+
+/* 圖片：圖說用等寬字，模仿 app 相框的資訊列 */
+figure{margin:40px 0 0}
+figure.wide{width:min(980px,100vw - 2*clamp(20px,6vw,64px));margin-left:50%;transform:translateX(-50%)}
+figure img,figure video{width:100%;border-radius:10px;background:#100e0c}
+figcaption{margin-top:12px;display:flex;justify-content:space-between;gap:16px;font:500 10.5px 'IBM Plex Mono',monospace;letter-spacing:.14em;color:rgba(242,239,233,.45);text-transform:uppercase}
+figcaption b{color:oklch(0.72 0.16 45);font-weight:500}
+.grid{display:grid;gap:12px}
+.grid.c2{grid-template-columns:repeat(2,1fr)}
+.grid.c3{grid-template-columns:repeat(3,1fr)}
+.grid img{width:100%;height:100%;object-fit:cover;aspect-ratio:var(--ar,4/3)}
+.grid.tall img{--ar:3/4}
+.grid figcaption{grid-column:1/-1}
+.paper{background:#f1ece2;padding:28px;border-radius:10px;display:flex;align-items:center;justify-content:center}
+.paper img{max-height:320px;width:auto;border-radius:0;background:none}
+.phones{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.phones img{border-radius:22px;border:1px solid rgba(242,239,233,.12)}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.compare .cell{position:relative}
+.compare .cell span{position:absolute;left:12px;bottom:10px;padding:6px 10px;border-radius:999px;background:rgba(11,10,9,.72);font:500 10px 'IBM Plex Mono',monospace;letter-spacing:.16em;color:#f2efe9}
+.compare .cell.win span{background:oklch(0.72 0.16 45);color:#0b0a09}
+
+/* 規格 / 步驟卡（沿用首頁的邊框卡） */
+.cards{display:grid;gap:12px;margin-top:28px}
+.cards.c3{grid-template-columns:repeat(3,1fr)}
+.card{padding:22px 22px 24px;border:1px solid rgba(242,239,233,.14);border-radius:12px}
+.card .n{font:500 11px 'IBM Plex Mono',monospace;letter-spacing:.2em;color:oklch(0.72 0.16 45)}
+.card h4{margin:12px 0 0;font:600 17px/1.5 'Noto Serif TC',serif}
+.card p{margin:8px 0 0;font-size:14px;line-height:1.8}
+.spec{display:flex;justify-content:space-between;padding:14px 18px;border:1px solid rgba(242,239,233,.12);border-radius:8px;font:500 12px 'IBM Plex Mono',monospace;letter-spacing:.08em;margin-top:10px}
+.spec .x{color:rgba(242,239,233,.35);text-decoration:line-through}
+.spec.on{border-color:oklch(0.72 0.16 45 / .6);background:oklch(0.72 0.16 45 / .07)}
+.spec.on b{color:oklch(0.72 0.16 45);font-weight:500}
+.chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+.chip{padding:10px 16px;border:1px solid rgba(242,239,233,.2);border-radius:999px;font:500 12px 'IBM Plex Mono',monospace;letter-spacing:.14em}
+.chip.dim{color:rgba(242,239,233,.45)}
+
+/* 結尾 CTA */
+.end{max-width:720px;margin:0 auto;padding:0 clamp(20px,6vw,64px) 80px}
+.cta{padding:44px clamp(24px,4vw,48px);border:1px solid rgba(242,239,233,.14);border-radius:18px;text-align:center}
+.cta h2{margin:0;font:700 clamp(24px,3.4vw,36px)/1.45 'Noto Serif TC',serif}
+.cta p{margin:14px 0 0;font:400 15px/1.9 'Libre Franklin','Noto Serif TC',sans-serif;color:rgba(242,239,233,.55)}
+.dl-btn{margin-top:30px;display:inline-flex;align-items:center;gap:10px;padding:16px 34px;border-radius:999px;background:#f2efe9;color:#0b0a09;font:600 14px 'Libre Franklin',sans-serif}
+.dl-btn:hover{background:oklch(0.72 0.16 45);color:#0b0a09}
+.links{margin-top:22px;display:flex;flex-wrap:wrap;justify-content:center;gap:10px 22px;font:500 11px 'IBM Plex Mono',monospace;letter-spacing:.16em}
+.links a{color:rgba(242,239,233,.55);text-decoration:underline;text-underline-offset:4px}
+.foot{margin-top:72px;display:flex;flex-wrap:wrap;gap:18px;justify-content:center;font:500 10px 'IBM Plex Mono',monospace;letter-spacing:.18em;color:rgba(242,239,233,.35)}
+.foot a{color:inherit}
+
+@media (max-width:640px){
+  .grid.c3{grid-template-columns:repeat(2,1fr)}
+  .grid.c3.tall img:nth-child(3){grid-column:1/-1;--ar:4/5}
+  .phones{grid-template-columns:repeat(2,1fr)}
+  .cards.c3{grid-template-columns:1fr}
+  .top nav{gap:12px}
+}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <a class="brand" href="../../"><img src="../../uploads/app-icon.png" alt="Gintone icon"><span>GINTONE</span></a>
+  <nav>
+    <a href="../">部落格</a>
+    <a class="pill" href="../../#dl">下載</a>
+  </nav>
+</div>
+<div class="progress" data-progress></div>
+
+<!-- ===== 標題區 ===== -->
+<header class="hero">
+  <div class="mono accent">BLOG · 設計筆記</div>
+  <h1>為什麼我要做一台相機</h1>
+  <p class="lede">從 16 歲的第一台 Cyber-shot、兩公斤的 A7 IV、妹妹想買的 GR3x，到我自己做了一台相機 app。這是一篇關於運算攝影、Apple Log，和「願不願意拿起來拍」的故事。</p>
+  <div class="meta"><span>RYAN LIOU（大軍）</span><span>2026 · 09</span><span>閱讀約 12 分鐘</span></div>
+</header>
+<div class="cover">
+  <figure><img src="../../slides/assets/g-bw-1.webp" alt="Gintone 拍的黑白街頭照片"><figcaption><span>Gintone · SoftBlackAndWhite</span><span>48mm</span><b>4/36</b></figcaption></figure>
+</div>
+
+<article>
+
+<!-- ===== 01 ===== -->
+<h2><span class="num">01 · 起點</span>16 歲那一年的 Cyber-shot</h2>
+<p>為什麼我會想做這款相機呢？可能要從我接觸攝影開始講起。</p>
+<p>我記得 16 歲那一年，我拿到人生第一台數位相機，是一台 <strong>Sony Cyber-shot T2</strong>。當年算是很風行的「即開即拍」相機，滑蓋一推就能拍。後來陸陸續續買了 Canon 550D，就這樣開始了一些攝影之路：學了光圈、快門、ISO，打光、構圖、錄影，各種技術的東西。</p>
+<figure><div class="grid c2"><div class="paper"><img src="../../slides/assets/cybershot-t2.webp" alt="Sony Cyber-shot T2"></div><div class="paper"><img src="../../slides/assets/canon-550d.webp" alt="Canon EOS 550D"></div><figcaption><span>Sony Cyber-shot T2 · Carl Zeiss 8.1MP</span><span>Canon EOS 550D</span></figcaption></div></figure>
+<p>然後就漸漸開始想要買厲害的器材。對焦速度、大光圈、五級防手震。於是我買了 <strong>Sony A7 IV ＋ Tamron 35-150 F2-2.8</strong>。</p>
+<figure><div class="grid c2"><div class="paper"><img src="../../slides/assets/a7iv-tamron.webp" alt="Sony A7 IV 與 Tamron 35-150" style="max-height:420px"></div><div><div class="spec"><span>A7 IV 機身</span><span>659 g</span></div><div class="spec"><span>Tamron 35-150</span><span>1,165 g</span></div><div class="spec on"><span>合計</span><b>1,824 g</b></div></div><figcaption><span>Sony A7 IV + Tamron 35-150mm F2-2.8</span></figcaption></div></figure>
+<p>我當然也用它拍了一些商業攝影，旅遊的時候也能拍出好照片。</p>
+<figure class="wide"><div class="grid c2 tall"><img src="../../slides/assets/food-1.webp" alt="餐廳菜單攝影"><img src="../../slides/assets/food-2.webp" alt="海鮮套餐海報攝影"><figcaption><span>商業攝影 · A7 IV</span></figcaption></div></figure>
+<figure class="wide"><div class="grid c3"><img src="../../slides/assets/travel-1.webp" alt="瀑布"><img src="../../slides/assets/travel-2.webp" alt="藍色湖水"><img src="../../slides/assets/travel-3.webp" alt="瀑布近景"><figcaption><span>旅遊 · A7 IV</span></figcaption></div></figure>
+<p>結果最後才發現：拍風景，大景出大片；人像的三要素則是 Model、Model、Model。而且這傢伙要兩公斤啊。</p>
+
+<!-- ===== 02 ===== -->
+<h2><span class="num">02 · GR3x</span>妹妹說，文青都在流行 GR3x</h2>
+<p>後來我妹跑來問我，說最近文青好像都在流行 GR3x，問我要不要買。不查還好，一查驚人：原價 31,900，當時飆到一台四萬多塊。</p>
+<figure><div class="grid c2"><div class="paper"><img src="../../slides/assets/gr3x.webp" alt="Ricoh GR IIIx"></div><div><div class="spec"><span>錄影能力</span><span class="x">很差</span></div><div class="spec"><span>對焦能力</span><span class="x">也很差</span></div><div class="spec"><span>續航能力</span><span class="x">非常 GG</span></div><div class="spec on"><span>拍出來</span><b>十分有味道</b></div></div><figcaption><span>Ricoh GR IIIx · 26.1mm F2.8 APS-C</span></figcaption></div></figure>
+<p>雖然它的錄影能力很差、對焦能力也很差，甚至續航能力也非常 GG。但拍出來的東西卻十分有味道，而且很輕便。</p>
+<div class="pull">你帶著它出門，總是會想把它拿起來，紀錄那個瞬間。</div>
+<figure class="wide"><img src="../../slides/assets/gr-1.webp" alt="日本街道" style="aspect-ratio:3/2;object-fit:cover"></figure>
+<figure class="wide" style="margin-top:12px"><div class="grid c2" style="--ar:2/3"><img src="../../slides/assets/gr-3.webp" alt="雷門燈籠"><img src="../../slides/assets/gr-2.webp" alt="電線與巷弄"><figcaption><span>Ricoh GR IIIx · Positive Film</span></figcaption></div></figure>
+
+<!-- ===== 03 ===== -->
+<h2><span class="num">03 · 賣的是什麼</span>一台六萬多的黑白機，到底在賣什麼？</h2>
+<p>理光最近出了一台黑白機。我就想說，其實很多相機都有黑白功能，而理光的黑白機一台甚至賣到六萬多塊。不但沒有顏色，也不能換鏡頭，那它到底在賣什麼東西呢？最近神牛甚至還出了一台。</p>
+<figure><div class="grid c2"><div class="paper"><img src="../../slides/assets/godox.webp" alt="Godox 相機" style="max-height:360px"></div><div class="paper"><img src="../../slides/assets/gr-tele.webp" alt="GR3x 望遠接環" style="max-height:360px"></div><figcaption><span>Godox</span><span>GR3x 的望遠接環，送我妹的生日禮物</span></figcaption></div></figure>
+<p>我後來想通了：<strong>我們其實在賣的是創作整個流程的情緒價值，和後續的流程。</strong>所以一台相機重要的不是它的參數到底有多厲害，有一部分也是你願不願意拿起來拍照。</p>
+<p>前幾年我送給我妹的生日禮物，就是 GR3x 的望遠接環和鏡頭。讓她想拿起來拍的次數，再多一點。</p>
+
+<!-- ===== 04 ===== -->
+<h2><span class="num">04 · 元兇</span>有感覺的照片，到底要有什麼元素？</h2>
+<p>我就在想，拍出一張有感覺的照片，到底要有什麼元素？</p>
+<ul>
+  <li>為什麼 iPhone 拍不太出來？</li>
+  <li>為什麼 A7 IV 拍出來的東西不有趣？</li>
+  <li>套濾鏡為什麼顯得廉價、無聊？</li>
+</ul>
+<p>我一直在思考這個問題。後來我找到一個特別的元兇，那就是 <strong>Computational Photography</strong>，運算攝影，或者說 AI Photography。</p>
+<figure class="wide"><img src="../../slides/assets/computational.webp" alt="Computational photography 發表會畫面"><figcaption><span>Computational Photography</span></figcaption></figure>
+<p>我們拍攝的東西離真實世界越來越遠。我們可以透過 AI 幫我們把人、把景物變好看，但同時，也看不見真實。</p>
+<figure><img src="../../slides/assets/moon-mode.webp" alt="手機廠商月亮模式說明文件"><figcaption><span>Moon Mode · 某手機廠的官方說明</span><span>Master AI</span></figcaption></figure>
+
+<h3>從最早的 HDR 罪證講起</h3>
+<p>HDR 就是 High Dynamic Range 的意思，我們可以拍到的暗部和亮部的範圍很大。過去要達到這件事，我們要做的是<strong>包圍曝光</strong>：拍好幾張不同曝光的照片，再合成一張。</p>
+<figure><img src="../../slides/assets/bracketing.webp" alt="包圍曝光四張不同曝光"><figcaption><span>包圍曝光 · 圖 1 到 4</span></figcaption></figure>
+<p>iPhone 做得更狠：白平衡、人物辨識、臉部辨識、深度圖，然後全部摻在一起做撒尿牛丸。</p>
+<figure class="wide"><div class="grid c2" style="--ar:16/9"><img src="../../slides/assets/deep-fusion.webp" alt="Deep Fusion 多張合成"><img src="../../slides/assets/iphone-pipeline.webp" alt="iPhone 影像處理流程"><figcaption><span>Deep Fusion · 9 frames</span><span>Photonic Engine pipeline</span></figcaption></div></figure>
+<p>但萬一我們不想要 HDR 呢？很抱歉，沒有辦法。從 iPhone 13 之後的機型，就是一定會幫你拍一堆照片合成起來。甚至你拍了 RAW 檔，也是拍攝了好幾張進行處理。</p>
+<figure class="wide"><div class="compare"><div class="cell"><img src="../../slides/assets/cmp-native.webp" alt="iPhone 原生相機拍攝的琴通尼" style="aspect-ratio:3/4;object-fit:cover;width:100%"><span>iPhone 原生相機</span></div><div class="cell win"><img src="../../slides/assets/cmp-gintone.webp" alt="Gintone 拍攝的琴通尼" style="aspect-ratio:3/4;object-fit:cover;width:100%"><span>Gintone</span></div></div><figcaption><span>同一支手機、同一杯酒、同一秒。左邊燭光被壓平、暗部被拉亮；右邊高光炸開、對比留著。</span></figcaption></figure>
+
+<!-- ===== 05 ===== -->
+<h2><span class="num">05 · 我的一招</span>趁人之危、殺雞取卵</h2>
+<p>我用了一招：趁人之危、殺雞取卵。</p>
+<p>通常我用影片錄製影像。iPhone 為了要拍攝每秒 60 幀，基本上它就沒有太多空閒的力氣幫我們做這麼多事情。然後我使用 <strong>Apple Log</strong> 格式，從中抓其中一幀來當照片，讓我們後續再套濾鏡的時候，可以有更好的寬容度。</p>
+<div class="cards c3">
+  <div class="card"><div class="n">01</div><h4>用錄影模式拍</h4><p>為了每秒 60 幀，iPhone 沒有多餘的力氣幫你做那麼多事。</p></div>
+  <div class="card"><div class="n">02</div><h4>用 Apple Log 記錄</h4><p>把光線資訊記錄得最完整，不先幫你決定樣子。</p></div>
+  <div class="card"><div class="n">03</div><h4>抓其中一幀當照片</h4><p>後續套濾鏡的時候，有更好的寬容度。</p></div>
+</div>
+
+<h3>什麼是 Log？</h3>
+<p>Log 是一種把場景亮度用「更平緩的曲線」記錄下來的方式。高光不容易過曝、暗部保留更多細節，但看起來會比較灰、對比低，所以需要後製調色。重點是：<strong>Log 不是顏色比較多，而是把光線資訊記錄得更完整。</strong></p>
+<figure class="wide"><div class="grid c2" style="--ar:16/9"><img src="../../slides/assets/slog3.webp" alt="Sony S-Log3 未調色與套 LUT 對比"><img src="../../slides/assets/apple-log.webp" alt="iPhone Apple Log 與套 LUT 對比" style="--ar:1/1"><figcaption><span>Sony S-Log3 · Ungraded / LUT</span><span>iPhone Apple Log · Log / LUT</span></figcaption></div></figure>
+<figure><img src="../../slides/assets/log-curve.webp" alt="Log 曲線與 Rec.709 的差異說明圖"><figcaption><span>Rec.709 vs Log 曲線</span><span>LUT / 調色</span></figcaption></figure>
+
+<!-- ===== 06 ===== -->
+<h2><span class="num">06 · Gintone</span>所以我做了自己的相機</h2>
+<p>這些是用 Gintone 拍出來的。不用很厲害的器材，只要你願意把它拿起來。</p>
+<figure class="wide"><div class="grid c2"><img src="../../slides/assets/g-bw-2.webp" alt="黑白街拍"><img src="../../slides/assets/g-rain.webp" alt="雨中撐傘"><img src="../../slides/assets/g-building.webp" alt="藍色玻璃帷幕"><img src="../../slides/assets/g-dog-1.webp" alt="七星潭的狗"><figcaption><span>Gintone · SoftBlackAndWhite / BlueHour</span><span>48mm · 24mm</span></figcaption></div></figure>
+<figure class="wide"><div class="grid c3 tall"><img src="../../slides/assets/g-dog-2.webp" alt="狗與烏雲"><img src="../../slides/assets/g-moon.webp" alt="海上的月亮"><img src="../../slides/assets/frame-jbl.webp" alt="Gintone 相框 高空作業" style="--ar:1080/1681"><figcaption><span>Gintone · BlueHour / Night / SoftBlackAndWhite</span></figcaption></div></figure>
+<figure class="wide"><div class="grid c3"><img src="../../slides/assets/frame-street.webp" alt="Gintone 相框 街景" style="--ar:1080/1681"><img src="../../slides/assets/frame-building.webp" alt="Gintone 相框 大樓" style="--ar:1080/1681"><img src="../../slides/assets/frame-bluehour.webp" alt="Gintone 相框 疊石" style="--ar:1080/1703"><figcaption><span>每一張都是一格底片，帶著地點、天氣、時間和張數</span></figcaption></div></figure>
+
+<!-- ===== 07 ===== -->
+<h2><span class="num">07 · App</span>來介紹一下我的 app</h2>
+<p>我的 app 相當簡單明瞭。一打開，就是選一個焦段鏡頭：可能是 13mm、24mm、48mm，或是 77mm / 120mm（依照機型）。</p>
+<div class="chips"><span class="chip">13mm</span><span class="chip">24mm</span><span class="chip">48mm</span><span class="chip dim">77 / 120mm · 依機型</span></div>
+<p>為什麼會這樣設計呢？因為我在學習攝影的時候，發現定焦鏡給我的學習很大。每次出門拍照的時候，總是喜歡放大縮小、切換鏡頭；但如果你受限於一個焦段，你就會開始<strong>移動你的腳步、你拍攝的高度、角度</strong>，只為了得到一個好的構圖。雖然減少了一些自由度，但你拍攝的這卷膠卷就會是統一的視角，觀看的感受也會比較好。</p>
+<p>再來是選擇一個膠卷（濾鏡）。其實我也很喜歡用 GR3 的各種膠片模擬，它模擬的顏色會讓整個旅程蒙上一種很特別的氛圍。所以每 36 張拍完之前，你都是用同一個世界觀進行創作。</p>
+<p>拍攝的介面我則做了極簡的設計，就是只能調整曝光、閃光燈、快門，讓拍攝者可以專注在拍攝創作上。</p>
+<figure class="wide"><div class="phones"><img src="../../slides/assets/app-lens.webp" alt="選一顆鏡頭"><img src="../../slides/assets/app-film.webp" alt="選膠卷"><img src="../../slides/assets/app-shoot.webp" alt="拍攝畫面"><img src="../../slides/assets/app-music.webp" alt="配樂畫面"></div><figcaption><span>選鏡頭 → 選膠卷 → 拍攝 → 配樂</span></figcaption></figure>
+<p>當你這樣做完之後，我也做了一個配樂功能，讓你可以一鍵配上音樂，就可以立刻分享到 IG 上。我還加入了 <strong>Music Understanding API</strong>，讓輸入的音樂可以辨識出節奏，讓每一個小節的音樂，可以直接對上一張照片。</p>
+<figure><div style="display:flex;justify-content:center"><video src="../../slides/assets/gintone-film.mp4" poster="../../slides/assets/gintone-film-poster.webp" controls playsinline preload="metadata" style="width:min(360px,100%);aspect-ratio:9/16;border-radius:22px;border:1px solid rgba(242,239,233,.12)"></video></div><figcaption style="justify-content:center"><span>一卷底片，一首歌 · Gintone 輸出的影片</span></figcaption></figure>
+
+<!-- ===== 08 ===== -->
+<h2><span class="num">08 · 命名</span>至於為什麼叫 Gintone？</h2>
+<p>因為我很喜歡一款調酒叫做 Gin Tonic。它是非常單純的琴酒，加上通寧水，還有一塊老冰製成。就是因為它很單純，所以讓我們用一種愉悅的心情去品嚐這款琴酒；它特殊的蒸餾香氣，會渲染每一杯琴通尼。</p>
+<p>剛好我的綽號叫做大軍，剛好跟 Gin 這個字很像。大軍的 tone 調，就叫做 Gintone 啦。</p>
+<div class="pull">以上，這就是我的 Gintone app 的設計理念。<small>謝謝啦。</small></div>
+
+</article>
+
+<div class="end">
+  <div class="cta">
+    <h2>用手上的 iPhone，<br>重新體驗一次拍照本來的樂趣。</h2>
+    <p>一顆鏡頭、一卷底片、三十六格。</p>
+    <a href="https://testflight.apple.com/join/QBJGPYae" target="_blank" rel="noopener" class="dl-btn">加入 TestFlight 搶先體驗</a>
+    <div class="links"><a href="../../slides/">看這篇的簡報版</a><a href="../">回部落格</a></div>
+  </div>
+  <div class="foot"><span>© 2026 GINTONE</span><span>·</span><span>LESS TO CHOOSE. MORE TO SEE.</span><span>·</span><a href="../../privacy.html">隱私權政策</a></div>
+</div>
+
+<script>
+// 閱讀進度條（與首頁一致）
+(function(){var bar=document.querySelector('[data-progress]');function u(){var h=document.documentElement;var m=h.scrollHeight-h.clientHeight;bar.style.width=(m?h.scrollTop/m*100:0)+'%';}addEventListener('scroll',u,{passive:true});u();})();
+</script>
+</body>
+</html>

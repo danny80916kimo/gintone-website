@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>部落格 — Gintone</title>
+<meta name="description" content="Gintone 的設計筆記：關於底片、運算攝影、Apple Log，和為什麼要做一台相機 app。">
+<meta property="og:title" content="Gintone Blog · 設計筆記">
+<meta property="og:description" content="關於底片、運算攝影、Apple Log，和為什麼要做一台相機 app。">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://gintone.app/blog/">
+<meta property="og:image" content="https://gintone.app/slides/assets/frame-jbl.webp">
+<link rel="canonical" href="https://gintone.app/blog/">
+<link rel="icon" type="image/png" href="../uploads/app-icon.png">
+<link rel="apple-touch-icon" href="../uploads/app-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Libre+Franklin:wght@400;500;600;700&family=Noto+Serif+TC:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+html{scroll-behavior:auto}
+body{margin:0;background:#0b0a09;color:#f2efe9;font-family:"Libre Franklin","Noto Serif TC",sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#f2efe9;text-decoration:none}
+a:hover{color:oklch(0.72 0.16 45)}
+::selection{background:oklch(0.72 0.16 45);color:#0b0a09}
+.top{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;justify-content:space-between;align-items:center;padding:18px clamp(20px,5vw,56px);background:linear-gradient(#0b0a09 30%,transparent)}
+.top .brand{display:flex;align-items:center;gap:12px}
+.top .brand img{width:30px;height:30px;border-radius:7px;display:block}
+.top .brand span{font:600 15px 'IBM Plex Mono',monospace;letter-spacing:.24em}
+.top nav{display:flex;align-items:center;gap:20px;font:500 11px 'IBM Plex Mono',monospace;letter-spacing:.16em}
+.top nav .pill{padding:10px 18px;border:1px solid rgba(242,239,233,.25);border-radius:999px}
+main{max-width:980px;margin:0 auto;padding:160px clamp(20px,6vw,64px) 100px}
+.kicker{font:500 11px 'IBM Plex Mono',monospace;letter-spacing:.24em;color:oklch(0.72 0.16 45)}
+h1{margin:22px 0 0;font:700 clamp(36px,6vw,64px)/1.25 'Noto Serif TC',serif;letter-spacing:.03em}
+.sub{margin:22px 0 0;font:400 clamp(15px,1.6vw,18px)/1.9 'Libre Franklin','Noto Serif TC',sans-serif;color:rgba(242,239,233,.55);max-width:560px;text-wrap:pretty}
+.posts{margin-top:72px;display:grid;gap:28px}
+.post{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:clamp(20px,4vw,44px);align-items:center;padding:clamp(18px,3vw,28px);border:1px solid rgba(242,239,233,.12);border-radius:18px;transition:border-color .3s}
+.post:hover{border-color:oklch(0.72 0.16 45 / .6);color:#f2efe9}
+.post img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:10px;display:block}
+.post .meta{font:500 10.5px 'IBM Plex Mono',monospace;letter-spacing:.2em;color:rgba(242,239,233,.45)}
+.post h2{margin:14px 0 0;font:600 clamp(22px,2.8vw,32px)/1.4 'Noto Serif TC',serif}
+.post p{margin:14px 0 0;font:400 clamp(14px,1.5vw,16px)/1.9 'Libre Franklin','Noto Serif TC',sans-serif;color:rgba(242,239,233,.6);text-wrap:pretty}
+.post .more{margin-top:22px;display:inline-block;font:500 11px 'IBM Plex Mono',monospace;letter-spacing:.2em;color:oklch(0.72 0.16 45)}
+.foot{margin-top:96px;display:flex;flex-wrap:wrap;gap:18px;justify-content:center;font:500 10px 'IBM Plex Mono',monospace;letter-spacing:.18em;color:rgba(242,239,233,.35)}
+.foot a{color:inherit}
+@media (max-width:680px){.post{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <a class="brand" href="../"><img src="../uploads/app-icon.png" alt="Gintone icon"><span>GINTONE</span></a>
+  <nav>
+    <span style="color:#f2efe9">部落格</span>
+    <a class="pill" href="../#dl">下載</a>
+  </nav>
+</div>
+
+<main>
+  <div class="kicker">BLOG · 設計筆記</div>
+  <h1>關於底片、光線，<br>和為什麼要做一台相機。</h1>
+  <p class="sub">Gintone 背後的想法，用比較長的篇幅慢慢講。</p>
+
+  <div class="posts">
+    <a class="post" href="why-i-built-a-camera/">
+      <img src="../slides/assets/g-bw-1.webp" alt="Gintone 拍的黑白街頭照片">
+      <div>
+        <div class="meta">2026 · 09 &nbsp;·&nbsp; 閱讀約 12 分鐘</div>
+        <h2>為什麼我要做一台相機</h2>
+        <p>從 16 歲的第一台 Cyber-shot、兩公斤的 A7 IV、妹妹想買的 GR3x，到我自己做了一台相機 app。一篇關於運算攝影、Apple Log，和「願不願意拿起來拍」的故事。</p>
+        <span class="more">閱讀全文 →</span>
+      </div>
+    </a>
+  </div>
+
+  <div class="foot"><span>© 2026 GINTONE</span><span>·</span><span>LESS TO CHOOSE. MORE TO SEE.</span><span>·</span><a href="../privacy.html">隱私權政策</a></div>
+</main>
+</body>
+</html>
