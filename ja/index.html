@@ -32,6 +32,11 @@ a:hover{color:oklch(0.72 0.16 45)}
 .dl-btn:hover{background:oklch(0.72 0.16 45);color:#0b0a09}
 .lang a{color:rgba(242,239,233,.45)}
 .lang a:hover{color:oklch(0.72 0.16 45)}
+.yt-wrap{width:100%;display:flex;justify-content:center}
+.yt-desktop{width:min(100%,960px);aspect-ratio:16/9;border-radius:14px;overflow:hidden;background:#000}
+.yt-mobile{display:none;width:min(100%,calc(78svh * 9 / 16));aspect-ratio:9/16;border-radius:14px;overflow:hidden;background:#000}
+.yt-desktop iframe,.yt-mobile iframe{width:100%;height:100%;border:0;display:block}
+@media (max-width:767px){.yt-desktop{display:none}.yt-mobile{display:block}}
 </style>
 </head>
 <body>
@@ -65,6 +70,15 @@ a:hover{color:oklch(0.72 0.16 45)}
   <div data-hero-sub style="margin-top:30px;font:400 clamp(14px,1.6vw,18px)/1.9 'Libre Franklin',sans-serif;color:rgba(242,239,233,.55);max-width:520px;text-wrap:pretty">選択はすべて、シャッターを切る前に。意識を、ファインダーへ。</div>
   <div data-hero-sub style="position:absolute;bottom:36px;left:50%;transform:translateX(-50%);font:500 10px 'IBM Plex Mono',monospace;letter-spacing:.24em;color:rgba(242,239,233,.35)">SCROLL ↓</div>
 </section>
+<section style="box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:80px clamp(20px,6vw,64px);text-align:center">
+  <div data-fade style="font:500 11px 'IBM Plex Mono',monospace;letter-spacing:.24em;color:oklch(0.72 0.16 45)">紹介ムービー</div>
+  <div data-fade class="yt-wrap" style="margin-top:36px">
+    <!-- 電腦版：橫式介紹影片；手機版：直式 Shorts。display:none 的 lazy iframe 不會載入，兩者只載其一。 -->
+    <div class="yt-desktop"><iframe loading="lazy" src="https://www.youtube-nocookie.com/embed/32ZvTpDuVbM?rel=0&modestbranding=1" title="Gintone Introduction Video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div>
+    <div class="yt-mobile"><iframe loading="lazy" src="https://www.youtube-nocookie.com/embed/HU6UlM-qV2E?rel=0&modestbranding=1" title="Gintone Introduction" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div>
+  </div>
+</section>
+
 
 <section style="min-height:100svh;box-sizing:border-box;display:flex;align-items:center;padding:80px clamp(20px,6vw,64px)">
   <div style="max-width:1100px;margin:0 auto;display:flex;flex-wrap:wrap;gap:clamp(32px,6vw,88px);align-items:center;justify-content:center">
